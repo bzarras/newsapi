@@ -5,6 +5,7 @@ A promise-based node wrapper for the awesome NewsAPI
 Powered by NewsAPI.org
 
 You will need an API key from [https://newsapi.org](https://newsapi.org)
+
 Please look at their documentation to see how to use the API
 
 ```js
@@ -46,3 +47,4 @@ newsapi.sources({
     }
   */
 });
+```
