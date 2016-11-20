@@ -2,7 +2,7 @@
 
 Powered by NewsAPI.org
 
-A promise-based node wrapper for the awesome NewsAPI
+A promise-based node interface for the awesome NewsAPI
 
 You will need an API key from [https://newsapi.org](https://newsapi.org)
 
@@ -10,6 +10,13 @@ Please look at their documentation to see how to use the API
 
 If you use this in a project, add a 'powered by' attribution link back to NewsAPI.org.
 
+##Add to your project
+`npm install newsapi --save`
+
+##Test
+`API_KEY=<your api key> npm test`
+
+##Example usage
 ```js
 let NewsAPI = require('newsapi');
 

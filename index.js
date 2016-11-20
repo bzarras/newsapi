@@ -65,6 +65,10 @@ function getDataFromWeb(url) {
       res.on('end', () => {
         resolve(JSON.parse(buf.toString('utf8')));
       });
+      res.on('error', err => {
+        console.log(`Got error: ${err.message}`);
+        reject(err);
+      });
     });
   });
 }
