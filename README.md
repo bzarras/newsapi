@@ -1,5 +1,8 @@
 # newsapi
 
+[![npm](https://img.shields.io/npm/v/npm.svg)](https://www.npmjs.com/package/newsapi)
+[![npm](https://img.shields.io/npm/dt/express.svg)](https://www.npmjs.com/package/newsapi)
+
 Powered by NewsAPI.org
 
 A promise-based node interface for the awesome NewsAPI
