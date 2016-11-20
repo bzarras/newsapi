@@ -1,11 +1,13 @@
 # newsapi
 
-[![npm](https://img.shields.io/npm/v/npm.svg)](https://www.npmjs.com/package/newsapi)
-[![npm](https://img.shields.io/npm/dt/express.svg)](https://www.npmjs.com/package/newsapi)
+A promise-based node interface for NewsAPI
+
+[![npm](https://img.shields.io/npm/v/newsapi.svg)](https://www.npmjs.com/package/newsapi)
+[![npm](https://img.shields.io/npm/dt/newsapi.svg)](https://www.npmjs.com/package/newsapi)
+
+
 
 Powered by NewsAPI.org
-
-A promise-based node interface for the awesome NewsAPI
 
 You will need an API key from [https://newsapi.org](https://newsapi.org)
 
