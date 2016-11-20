@@ -11,10 +11,10 @@ Please look at their documentation to see how to use the API
 If you use this in a project, add a 'powered by' attribution link back to NewsAPI.org.
 
 ##Add to your project
-`npm install newsapi --save`
+`$ npm install newsapi --save`
 
 ##Test
-`API_KEY=<your api key> npm test`
+`$ API_KEY=<your api key> npm test`
 
 ##Example usage
 ```js
