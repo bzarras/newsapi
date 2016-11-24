@@ -5,21 +5,23 @@ A promise-based node interface for NewsAPI
 [![npm](https://img.shields.io/npm/v/newsapi.svg)](https://www.npmjs.com/package/newsapi)
 [![npm](https://img.shields.io/npm/dt/newsapi.svg)](https://www.npmjs.com/package/newsapi)
 
-
-
-Powered by NewsAPI.org
+Up-to-date headlines and metadata in JSON from 70+ popular news sites. Powered by NewsAPI.org.
 
 You will need an API key from [https://newsapi.org](https://newsapi.org)
 
 Please look at their documentation to see how to use the API
 
-If you use this in a project, add a 'powered by' attribution link back to NewsAPI.org.
+If you use this in a project, add a 'powered by' attribution link back to NewsAPI.org
 
 ##Add to your project
-`$ npm install newsapi --save`
+```shell
+$ npm install newsapi --save
+```
 
 ##Test
-`$ API_KEY=<your api key> npm test`
+```shell
+$ API_KEY=<your api key> npm test
+```
 
 ##Example usage
 ```js
