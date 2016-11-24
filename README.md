@@ -5,7 +5,7 @@ A promise-based node interface for NewsAPI
 [![npm](https://img.shields.io/npm/v/newsapi.svg)](https://www.npmjs.com/package/newsapi)
 [![npm](https://img.shields.io/npm/dt/newsapi.svg)](https://www.npmjs.com/package/newsapi)
 
-Up-to-date headlines and metadata in JSON from 70+ popular news sites. Powered by NewsAPI.org.
+Up-to-date news headlines and metadata in JSON from 70+ popular news sites. Powered by NewsAPI.org.
 
 You will need an API key from [https://newsapi.org](https://newsapi.org)
 
