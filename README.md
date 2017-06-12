@@ -13,17 +13,17 @@ Please look at their documentation to see how to use the API
 
 If you use this in a project, add a 'powered by' attribution link back to NewsAPI.org
 
-##Add to your project
+## Add to your project
 ```shell
 $ npm install newsapi --save
 ```
 
-##Test
+## Test
 ```shell
 $ API_KEY=<your api key> npm test
 ```
 
-##Example usage
+## Example usage
 ```js
 let NewsAPI = require('newsapi');
 
