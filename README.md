@@ -1,6 +1,6 @@
 # newsapi
 
-A promise-based node interface for NewsAPI
+A node interface for NewsAPI
 
 [![npm](https://img.shields.io/npm/v/newsapi.svg)](https://www.npmjs.com/package/newsapi)
 [![npm](https://img.shields.io/npm/dt/newsapi.svg)](https://www.npmjs.com/package/newsapi)
@@ -29,7 +29,7 @@ let NewsAPI = require('newsapi');
 
 let newsapi = new NewsAPI('YOUR_API_KEY');
 
-// To query articles
+// To query articles:
 newsapi.articles({
   source: 'associated-press', // required
   sortBy: 'top' // optional
@@ -47,7 +47,7 @@ newsapi.articles({
    */
 });
 
-// To query sources
+// To query sources:
 newsapi.sources({
   category: 'technology', // optional
   language: 'en', // optional
@@ -62,5 +62,14 @@ newsapi.sources({
       ]
     }
   */
+});
+
+// For both methods you can also use traditional Node callback style:
+newsapi.articles({
+  source: 'associated-press',
+  sortBy: 'top'
+}, (err, articlesResponse) => {
+  if (err) console.error(err);
+  else console.log(articlesResponse);
 });
 ```

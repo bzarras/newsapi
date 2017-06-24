@@ -54,7 +54,8 @@ function constructSourcesURL(params) {
  * @param  {String} url A URL String
  * @return {Promise<Buffer>}     A Promise containing a Buffer
  */
-function getDataFromWeb(url) {
+function getDataFromWeb(url, cb) {
+  let useCallback = 'function' === typeof cb;
   return new Promise((resolve, reject) => {
     https.get(url, res => {
       let buf;
@@ -63,24 +64,41 @@ function getDataFromWeb(url) {
         else buf = Buffer.concat([buf, data]);
       });
       res.on('end', () => {
-        resolve(JSON.parse(buf.toString('utf8')));
+        try {
+          let data = JSON.parse(buf.toString('utf8'));
+          if (useCallback) return cb(null, data);
+          resolve(data);
+        } catch (err) {
+          if (useCallback) return cb(err);
+          reject(err);
+        }
       });
       res.on('error', err => {
-        console.log(`Got error: ${err.message}`);
+        if (useCallback) return cb(err);
         reject(err);
       });
     });
   });
 }
 
-function getSources(params) {
+function getSources(...args) {
+  let params;
+  let cb;
+  if (args.length > 1) {
+    params = args[0];
+    cb = args[1];
+  } else if ('object' === typeof args[0]) {
+    params = args[0];
+  } else if ('function' === typeof args[0]) {
+    cb = args[0];
+  }
   let url = constructSourcesURL(params);
-  return getDataFromWeb(url);
+  return getDataFromWeb(url, cb);
 }
 
-function getArticles(params) {
+function getArticles(params, cb) {
   let url = constructArticlesURL(params);
-  return getDataFromWeb(url);
+  return getDataFromWeb(url, cb);
 }
 
 module.exports = function (apiKey) {
