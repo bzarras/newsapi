@@ -4,7 +4,7 @@
   "description": "A node interface for the awesome News API from newsapi.org",
   "main": "index.js",
   "scripts": {
-    "test": "mocha"
+    "test": "API_KEY=3f499850f53546efaa8b0f42287e5e7a mocha"
   },
   "keywords": [
     "news",

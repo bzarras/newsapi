@@ -4,6 +4,7 @@ A node interface for NewsAPI
 
 [![npm](https://img.shields.io/npm/v/newsapi.svg)](https://www.npmjs.com/package/newsapi)
 [![npm](https://img.shields.io/npm/dt/newsapi.svg)](https://www.npmjs.com/package/newsapi)
+[![Build Status](https://travis-ci.org/bzarras/newsapi.svg?branch=master)](https://travis-ci.org/bzarras/newsapi)
 
 Up-to-date news headlines and metadata in JSON from 70+ popular news sites. Powered by NewsAPI.org.
 
