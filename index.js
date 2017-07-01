@@ -7,9 +7,8 @@
  * from many popular news sources.
  */
 
-const https = require('https'),
-  Promise = require('bluebird'),
-  host = 'https://newsapi.org';
+const Request = require('request');
+const host = 'https://newsapi.org';
 
 let API_KEY; // To be set by clients
 
@@ -57,26 +56,19 @@ function constructSourcesURL(params) {
 function getDataFromWeb(url, cb) {
   let useCallback = 'function' === typeof cb;
   return new Promise((resolve, reject) => {
-    https.get(url, res => {
-      let buf;
-      res.on('data', data => {
-        if (!buf) buf = data;
-        else buf = Buffer.concat([buf, data]);
-      });
-      res.on('end', () => {
-        try {
-          let data = JSON.parse(buf.toString('utf8'));
-          if (useCallback) return cb(null, data);
-          resolve(data);
-        } catch (err) {
-          if (useCallback) return cb(err);
-          reject(err);
-        }
-      });
-      res.on('error', err => {
+    Request.get(url, (err, res, body) => {
+      if (err) {
         if (useCallback) return cb(err);
-        reject(err);
-      });
+        return reject(err);
+      }
+      try {
+        const data = JSON.parse(body);
+        if (useCallback) return cb(null, data);
+        return resolve(data);
+      } catch (tryErr) {
+        if (useCallback) return cb(tryErr);
+        return reject(tryErr);
+      }
     });
   });
 }
