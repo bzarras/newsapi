@@ -19,7 +19,8 @@
   },
   "license": "MIT",
   "dependencies": {
-    "bluebird": "^3.4.6"
+    "bluebird": "^3.4.6",
+    "request": "^2.83.0"
   },
   "devDependencies": {
     "mocha": "^3.1.2",
