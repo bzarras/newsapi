@@ -99,6 +99,19 @@ describe('NewsAPI', function () {
         }).catch(done);
       });
 
+      it('Should return "ok" and a list of top headlines using a callback', function (done) {
+        newsapi.v2.topHeadlines({
+          language: 'en'
+        }, (err, res) => {
+          if (err) {
+            return done(err);
+          }
+          res.status.should.equal('ok');
+          should.exist(res.articles);
+          done();
+        });
+      });
+
       it('Should default to english language if no options are provided and return a list of top headlines', function (done) {
         newsapi.v2.topHeadlines().then(res => {
           res.status.should.equal('ok');
