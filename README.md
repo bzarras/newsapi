@@ -10,7 +10,7 @@ Up-to-date news headlines and metadata in JSON from 70+ popular news sites. Powe
 
 You will need an API key from [https://newsapi.org](https://newsapi.org).
 
-Please look at their documentation to see how to use the API. The convenience functions provided by this module
+Please look at their [documentation](https://newsapi.org/docs) to see how to use the API. The convenience functions provided by this module
 simply pass their options along as querystring parameters to the REST API, so the [documentation](https://newsapi.org/docs)
 is totally valid. There are some usage examples below to see how these options should be passed in.
 
