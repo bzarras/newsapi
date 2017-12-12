@@ -5,106 +5,127 @@
  *
  * The API provides access to recent news headlines
  * from many popular news sources.
+ * 
+ * The author of this code has no formal relationship with NewsAPI.org and does not
+ * claim to have created any of the facilities provided by NewsAPI.org.
  */
 
-const https = require('https'),
-  Promise = require('bluebird'),
+const Promise = require('bluebird'),
+  request = require('request'),
+  qs = require('querystring'),
   host = 'https://newsapi.org';
 
 let API_KEY; // To be set by clients
 
-/**
- * Takes a params object and returns a url to the articles endpoint
- * @param  {String} params.source The source identifier
- * @param  {String} [params.sortBy] The way to sort the results
- * @return {String}        The URL to the articles endpoint
- */
-function constructArticlesURL (params) {
-  if (!params.source) throw new Error('params.source is required');
-  const baseURL = `${host}/v1/articles`;
-  let sortBy = params.sortBy || 'top';
-  return `${baseURL}?source=${params.source}&sortBy=${sortBy}&apiKey=${API_KEY}`;
+class NewsAPI {
+  constructor (apiKey) {
+    if (!apiKey) throw new Error('No API key specified');
+    API_KEY = apiKey;
+    this.v2 = {
+      topHeadlines (...args) {
+        const { options = { language: 'en' }, cb } = splitArgsIntoOptionsAndCallback(args);
+        const url = createUrlFromEndpointAndOptions('/v2/top-headlines', options);
+        return getDataFromWeb(url, API_KEY, cb);
+      },
+
+      everything (...args) {
+        const { options, cb } = splitArgsIntoOptionsAndCallback(args);
+        const url = createUrlFromEndpointAndOptions('/v2/everything', options);
+        return getDataFromWeb(url, API_KEY, cb);
+      },
+
+      sources (...args) {
+        const { options, cb } = splitArgsIntoOptionsAndCallback(args);
+        const url = createUrlFromEndpointAndOptions('/v2/sources', options);
+        return getDataFromWeb(url, API_KEY, cb);
+      }
+    }
+  }
+
+  sources (...args) {
+    const { options, cb } = splitArgsIntoOptionsAndCallback(args);
+    const url = createUrlFromEndpointAndOptions('/v1/sources', options);
+    return getDataFromWeb(url, null, cb);
+  }
+
+  articles (...args) {
+    const { options, cb } = splitArgsIntoOptionsAndCallback(args);
+    const url = createUrlFromEndpointAndOptions('/v1/articles', options);
+    return getDataFromWeb(url, API_KEY, cb);
+  }
+}
+
+class NewsAPIError extends Error {
+  constructor(err) {
+    super();
+    this.name = `NewsAPIError: ${err.code}`;
+    this.message = err.message;
+  }
 }
 
 /**
- * Takes a params object and returns a url to the sources endpoint
- * @param  {String} [params.category] The category of source
- * @param  {String} [params.language] The language to get results for
- * @param  {String} [params.country] The country to get results for
- * @return {String}        The URL to the sources endpoint
+ * Takes a variable-length array that represents arguments to a function and attempts to split it into
+ * an 'options' object and a 'cb' callback function.
+ * @param {Array}   args The arguments to the function
+ * @return {Object}
  */
-function constructSourcesURL(params) {
-  let url = `${host}/v1/sources`;
-  if (params) {
-    let keys = Object.keys(params).filter(key => params[key]);
-    if (keys.length > 0) {
-      url += '?'
-      keys.forEach((key, index) => {
-        url += `${key}=${params[key]}`;
-        if (index != keys.length - 1) url += '&'
-      });
-    }
+function splitArgsIntoOptionsAndCallback (args) {
+  let options;
+  let cb;
+  if (args.length > 1) {
+    options = args[0];
+    cb = args[1];
+  } else if ('object' === typeof args[0]) {
+    options = args[0];
+  } else if ('function' === typeof args[0]) {
+    cb = args[0];
   }
-  return url;
+  return { options, cb };
+}
+
+/**
+ * Creates a url string from an endpoint and an options object by appending the endpoint
+ * to the global "host" const and appending the options as querystring parameters.
+ * @param {String} endpoint 
+ * @param {Object} [options]
+ * @return {String}
+ */
+function createUrlFromEndpointAndOptions (endpoint, options) {
+  const query = qs.stringify(options);
+  const baseURL = `${host}${endpoint}`;
+  return query ? `${baseURL}?${query}` : baseURL;
 }
 
 /**
  * Takes a URL string and returns a Promise containing
  * a buffer with the data from the web.
- * @param  {String} url A URL String
- * @return {Promise<Buffer>}     A Promise containing a Buffer
+ * @param  {String} url      A URL String
+ * @param  {String} apiKey   (Optional) A key to be used for authentication
+ * @return {Promise<Buffer>} A Promise containing a Buffer
  */
-function getDataFromWeb(url, cb) {
+function getDataFromWeb(url, apiKey, cb) {
   let useCallback = 'function' === typeof cb;
   return new Promise((resolve, reject) => {
-    https.get(url, res => {
-      let buf;
-      res.on('data', data => {
-        if (!buf) buf = data;
-        else buf = Buffer.concat([buf, data]);
-      });
-      res.on('end', () => {
-        try {
-          let data = JSON.parse(buf.toString('utf8'));
-          if (useCallback) return cb(null, data);
-          resolve(data);
-        } catch (err) {
-          if (useCallback) return cb(err);
-          reject(err);
-        }
-      });
-      res.on('error', err => {
+    const options = { url };
+    if (apiKey) {
+      options.headers = { 'X-Api-Key': apiKey };
+    }
+    request.get(options, (err, res, body) => {
+      if (err) {
         if (useCallback) return cb(err);
-        reject(err);
-      });
+        return reject(err);
+      }
+      try {
+        const data = JSON.parse(body);
+        if (data.status === 'error') throw new NewsAPIError(data);
+        if (useCallback) return cb(null, data);
+        return resolve(data);
+      } catch (e) {
+        if (useCallback) return cb(e);
+        return reject(e);
+      }
     });
   });
 }
 
-function getSources(...args) {
-  let params;
-  let cb;
-  if (args.length > 1) {
-    params = args[0];
-    cb = args[1];
-  } else if ('object' === typeof args[0]) {
-    params = args[0];
-  } else if ('function' === typeof args[0]) {
-    cb = args[0];
-  }
-  let url = constructSourcesURL(params);
-  return getDataFromWeb(url, cb);
-}
-
-function getArticles(params, cb) {
-  let url = constructArticlesURL(params);
-  return getDataFromWeb(url, cb);
-}
-
-module.exports = function (apiKey) {
-  if (!apiKey) throw new Error('No API key specified');
-  API_KEY = apiKey;
-
-  this.sources = getSources;
-  this.articles = getArticles;
-};
+module.exports = NewsAPI;
