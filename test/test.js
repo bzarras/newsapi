@@ -1,5 +1,7 @@
 'use strict';
 
+require('dotenv').config();
+
 let should = require('should'),
   NewsAPI = require('../index');
 
@@ -139,6 +141,20 @@ describe('NewsAPI', function () {
         }).then(res => {
           res.status.should.equal('ok');
           should.exist(res.articles);
+          done();
+        }).catch(done);
+      });
+
+      it('Should not cache results if noCache is on', function (done) {
+        newsapi.v2.everything({
+          sources: 'bbc-news'
+        }, {
+          noCache: true,
+          showHeaders: true
+        }).then(res => {
+          res.headers['x-cached-result'].should.equal('false');
+          res.body.status.should.equal('ok');
+          should.exist(res.body.articles);
           done();
         }).catch(done);
       });

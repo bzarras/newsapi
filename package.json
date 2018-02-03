@@ -1,6 +1,6 @@
 {
   "name": "newsapi",
-  "version": "2.1.0",
+  "version": "2.2.0",
   "description": "A node interface for the awesome News API from newsapi.org",
   "main": "index.js",
   "scripts": {
@@ -23,6 +23,7 @@
     "request": "^2.83.0"
   },
   "devDependencies": {
+    "dotenv": "^5.0.0",
     "mocha": "^3.1.2",
     "should": "^11.1.1"
   }
