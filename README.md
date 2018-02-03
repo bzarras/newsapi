@@ -133,3 +133,16 @@ newsapi.articles({
   else console.log(articlesResponse);
 });
 ```
+
+## Caching
+[NewsAPI's caching behavior](https://newsapi.org/docs/caching).
+You can disable caching on a request level by adding the `noCache: true` option to your queries.
+```js
+newsapi.v2.everything({
+  sources: 'bbc-news'
+}, {
+  noCache: true
+}).then(response => {
+  ...
+});
+```

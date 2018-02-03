@@ -23,35 +23,35 @@ class NewsAPI {
     API_KEY = apiKey;
     this.v2 = {
       topHeadlines (...args) {
-        const { options = { language: 'en' }, cb } = splitArgsIntoOptionsAndCallback(args);
-        const url = createUrlFromEndpointAndOptions('/v2/top-headlines', options);
-        return getDataFromWeb(url, API_KEY, cb);
+        const { params = { language: 'en' }, options, cb } = splitArgsIntoOptionsAndCallback(args);
+        const url = createUrlFromEndpointAndOptions('/v2/top-headlines', params);
+        return getDataFromWeb(url, options, API_KEY, cb);
       },
 
       everything (...args) {
-        const { options, cb } = splitArgsIntoOptionsAndCallback(args);
-        const url = createUrlFromEndpointAndOptions('/v2/everything', options);
-        return getDataFromWeb(url, API_KEY, cb);
+        const { params, options, cb } = splitArgsIntoOptionsAndCallback(args);
+        const url = createUrlFromEndpointAndOptions('/v2/everything', params);
+        return getDataFromWeb(url, options, API_KEY, cb);
       },
 
       sources (...args) {
-        const { options, cb } = splitArgsIntoOptionsAndCallback(args);
-        const url = createUrlFromEndpointAndOptions('/v2/sources', options);
-        return getDataFromWeb(url, API_KEY, cb);
+        const { params, options, cb } = splitArgsIntoOptionsAndCallback(args);
+        const url = createUrlFromEndpointAndOptions('/v2/sources', params);
+        return getDataFromWeb(url, options, API_KEY, cb);
       }
     }
   }
 
   sources (...args) {
-    const { options, cb } = splitArgsIntoOptionsAndCallback(args);
-    const url = createUrlFromEndpointAndOptions('/v1/sources', options);
-    return getDataFromWeb(url, null, cb);
+    const { params, options, cb } = splitArgsIntoOptionsAndCallback(args);
+    const url = createUrlFromEndpointAndOptions('/v1/sources', params);
+    return getDataFromWeb(url, options, null, cb);
   }
 
   articles (...args) {
-    const { options, cb } = splitArgsIntoOptionsAndCallback(args);
-    const url = createUrlFromEndpointAndOptions('/v1/articles', options);
-    return getDataFromWeb(url, API_KEY, cb);
+    const { params, options, cb } = splitArgsIntoOptionsAndCallback(args);
+    const url = createUrlFromEndpointAndOptions('/v1/articles', params);
+    return getDataFromWeb(url, options, API_KEY, cb);
   }
 }
 
@@ -70,17 +70,24 @@ class NewsAPIError extends Error {
  * @return {Object}
  */
 function splitArgsIntoOptionsAndCallback (args) {
+  let params;
   let options;
   let cb;
   if (args.length > 1) {
-    options = args[0];
-    cb = args[1];
+    const possibleCb = args[args.length - 1];
+    if ('function' === typeof possibleCb) {
+      cb = possibleCb;
+      options = args.length === 3 ? args[1] : undefined;
+    } else {
+      options = args[1];
+    }
+    params = args[0];
   } else if ('object' === typeof args[0]) {
-    options = args[0];
+    params = args[0];
   } else if ('function' === typeof args[0]) {
     cb = args[0];
   }
-  return { options, cb };
+  return { params, options, cb };
 }
 
 /**
@@ -103,14 +110,17 @@ function createUrlFromEndpointAndOptions (endpoint, options) {
  * @param  {String} apiKey   (Optional) A key to be used for authentication
  * @return {Promise<Buffer>} A Promise containing a Buffer
  */
-function getDataFromWeb(url, apiKey, cb) {
+function getDataFromWeb(url, options, apiKey, cb) {
   let useCallback = 'function' === typeof cb;
   return new Promise((resolve, reject) => {
-    const options = { url };
+    const req = { url, headers: {} };
     if (apiKey) {
-      options.headers = { 'X-Api-Key': apiKey };
+      req.headers['X-Api-Key'] = apiKey;
     }
-    request.get(options, (err, res, body) => {
+    if (options && options.noCache === true) {
+      req.headers['X-No-Cache'] = 'true';
+    }
+    request.get(req, (err, res, body) => {
       if (err) {
         if (useCallback) return cb(err);
         return reject(err);
@@ -118,6 +128,12 @@ function getDataFromWeb(url, apiKey, cb) {
       try {
         const data = JSON.parse(body);
         if (data.status === 'error') throw new NewsAPIError(data);
+        // 'showHeaders' option can be used for clients to debug response headers
+        // response will be in form of { headers, body }
+        if (options && options.showHeaders) {
+          if (useCallback) return cb(null, { headers: res.headers, body: data });
+          return resolve({ headers: res.headers, body: data });
+        }
         if (useCallback) return cb(null, data);
         return resolve(data);
       } catch (e) {
