@@ -72,7 +72,6 @@ describe('NewsAPI', function () {
         newsapi.articles().then(res => {
           done(new Error('Should have thrown an error'));
         }).catch(err => {
-          console.log(err);
           done();
         });
       });
@@ -128,8 +127,7 @@ describe('NewsAPI', function () {
             done(new Error('This should have thrown an error'));
           })
           .catch((err) => {
-            console.log(err);
-            done()
+            done();
           });
       });
     });
@@ -152,7 +150,7 @@ describe('NewsAPI', function () {
           noCache: true,
           showHeaders: true
         }).then(res => {
-          res.headers['x-cached-result'].should.equal('false');
+          res.headers.get('x-cached-result').should.equal('false');
           res.body.status.should.equal('ok');
           should.exist(res.body.articles);
           done();
@@ -165,8 +163,7 @@ describe('NewsAPI', function () {
             done(new Error('This should have thrown an error'));
           })
           .catch((err) => {
-            console.log(err);
-            done()
+            done();
           });
       });
     });
