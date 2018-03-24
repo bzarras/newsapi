@@ -1,6 +1,6 @@
 {
   "name": "newsapi",
-  "version": "2.2.0",
+  "version": "2.2.1",
   "description": "A node interface for the awesome News API from newsapi.org",
   "main": "index.js",
   "scripts": {
@@ -20,7 +20,7 @@
   "license": "MIT",
   "dependencies": {
     "bluebird": "^3.4.6",
-    "request": "^2.83.0"
+    "node-fetch": "^2.1.1"
   },
   "devDependencies": {
     "dotenv": "^5.0.0",

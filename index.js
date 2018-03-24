@@ -11,9 +11,11 @@
  */
 
 const Promise = require('bluebird'),
-  request = require('request'),
+  fetch = require('node-fetch'),
   qs = require('querystring'),
   host = 'https://newsapi.org';
+
+fetch.Promise = Promise;
 
 let API_KEY; // To be set by clients
 
@@ -113,33 +115,31 @@ function createUrlFromEndpointAndOptions (endpoint, options) {
 function getDataFromWeb(url, options, apiKey, cb) {
   let useCallback = 'function' === typeof cb;
   return new Promise((resolve, reject) => {
-    const req = { url, headers: {} };
+    const reqOptions = { headers: {} };
     if (apiKey) {
-      req.headers['X-Api-Key'] = apiKey;
+      reqOptions.headers['X-Api-Key'] = apiKey;
     }
     if (options && options.noCache === true) {
-      req.headers['X-No-Cache'] = 'true';
+      reqOptions.headers['X-No-Cache'] = 'true';
     }
-    request.get(req, (err, res, body) => {
-      if (err) {
-        if (useCallback) return cb(err);
-        return reject(err);
-      }
+    fetch(url, reqOptions).then(res => [res, res.json()]).spread((res, body) => {
       try {
-        const data = JSON.parse(body);
-        if (data.status === 'error') throw new NewsAPIError(data);
+        if (body.status === 'error') throw new NewsAPIError(body);
         // 'showHeaders' option can be used for clients to debug response headers
         // response will be in form of { headers, body }
         if (options && options.showHeaders) {
-          if (useCallback) return cb(null, { headers: res.headers, body: data });
-          return resolve({ headers: res.headers, body: data });
+          if (useCallback) return cb(null, { headers: res.headers, body });
+          return resolve({ headers: res.headers, body });
         }
-        if (useCallback) return cb(null, data);
-        return resolve(data);
+        if (useCallback) return cb(null, body);
+        return resolve(body);
       } catch (e) {
         if (useCallback) return cb(e);
         return reject(e);
       }
+    }).catch(err => {
+      if (useCallback) return cb(err);
+        return reject(err);
     });
   });
 }
