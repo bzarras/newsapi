@@ -1,6 +1,6 @@
 {
   "name": "newsapi",
-  "version": "2.2.0",
+  "version": "2.2.1",
   "description": "A node interface for the awesome News API from newsapi.org",
   "main": "index.js",
   "scripts": {
