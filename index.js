@@ -5,7 +5,7 @@
  *
  * The API provides access to recent news headlines
  * from many popular news sources.
- * 
+ *
  * The author of this code has no formal relationship with NewsAPI.org and does not
  * claim to have created any of the facilities provided by NewsAPI.org.
  */
@@ -95,7 +95,7 @@ function splitArgsIntoOptionsAndCallback (args) {
 /**
  * Creates a url string from an endpoint and an options object by appending the endpoint
  * to the global "host" const and appending the options as querystring parameters.
- * @param {String} endpoint 
+ * @param {String} endpoint
  * @param {Object} [options]
  * @return {String}
  */
@@ -114,33 +114,26 @@ function createUrlFromEndpointAndOptions (endpoint, options) {
  */
 function getDataFromWeb(url, options, apiKey, cb) {
   let useCallback = 'function' === typeof cb;
-  return new Promise((resolve, reject) => {
-    const reqOptions = { headers: {} };
-    if (apiKey) {
-      reqOptions.headers['X-Api-Key'] = apiKey;
+  const reqOptions = { headers: {} };
+  if (apiKey) {
+    reqOptions.headers['X-Api-Key'] = apiKey;
+  }
+  if (options && options.noCache === true) {
+    reqOptions.headers['X-No-Cache'] = 'true';
+  }
+  return fetch(url, reqOptions).then(res => Promise.all([res, res.json()])).then(([res, body]) => {
+    if (body.status === 'error') throw new NewsAPIError(body);
+    // 'showHeaders' option can be used for clients to debug response headers
+    // response will be in form of { headers, body }
+    if (options && options.showHeaders) {
+      if (useCallback) return cb(null, { headers: res.headers, body });
+      return { headers: res.headers, body };
     }
-    if (options && options.noCache === true) {
-      reqOptions.headers['X-No-Cache'] = 'true';
-    }
-    fetch(url, reqOptions).then(res => [res, res.json()]).spread((res, body) => {
-      try {
-        if (body.status === 'error') throw new NewsAPIError(body);
-        // 'showHeaders' option can be used for clients to debug response headers
-        // response will be in form of { headers, body }
-        if (options && options.showHeaders) {
-          if (useCallback) return cb(null, { headers: res.headers, body });
-          return resolve({ headers: res.headers, body });
-        }
-        if (useCallback) return cb(null, body);
-        return resolve(body);
-      } catch (e) {
-        if (useCallback) return cb(e);
-        return reject(e);
-      }
-    }).catch(err => {
-      if (useCallback) return cb(err);
-        return reject(err);
-    });
+    if (useCallback) return cb(null, body);
+    return body;
+  }).catch(err => {
+    if (useCallback) return cb(err);
+    throw err;
   });
 }
 
