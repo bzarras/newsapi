@@ -1,5 +1,11 @@
 # Release Notes
 
+## v2.2.2
+Date: 2018-03-26  
+Type: Patch  
+This release makes the following changes, updates, and bug fixes:
+1. Remove use of Promise.spread() to improve compatibility with react native.
+
 ## v2.2.1
 Date: 2018-03-24  
 Type: Patch  
