@@ -1,5 +1,12 @@
 # Release Notes
 
+## v2.3.0
+Date: 2018-07-31  
+Type: Minor  
+This release makes the following changes, updates, and bug fixes:
+1. Update mocha to eliminate vulnerabilities.
+2. Remove use of bluebird. Use native promises instead.
+
 ## v2.2.2
 Date: 2018-03-26  
 Type: Patch  

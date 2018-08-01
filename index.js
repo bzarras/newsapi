@@ -10,12 +10,9 @@
  * claim to have created any of the facilities provided by NewsAPI.org.
  */
 
-const Promise = require('bluebird'),
-  fetch = require('node-fetch'),
+const fetch = require('node-fetch'),
   qs = require('querystring'),
   host = 'https://newsapi.org';
-
-fetch.Promise = Promise;
 
 let API_KEY; // To be set by clients
 
