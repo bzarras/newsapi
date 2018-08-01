@@ -35,7 +35,6 @@ const newsapi = new NewsAPI('YOUR_API_KEY');
 // To query top headlines
 // All options passed to topHeadlines are optional, but you need to include at least one of them
 newsapi.v2.topHeadlines({
-  sources: 'bbc-news,the-verge',
   q: 'trump',
   category: 'politics',
   language: 'en',
@@ -55,7 +54,7 @@ newsapi.v2.topHeadlines({
 newsapi.v2.everything({
   q: 'trump',
   sources: 'bbc-news,the-verge',
-  domains: 'bbc.co.uk, techcrunch.com',
+  domains: 'bbc.co.uk,techcrunch.com',
   from: '2017-12-01',
   to: '2017-12-12',
   language: 'en',
