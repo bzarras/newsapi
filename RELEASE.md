@@ -1,5 +1,11 @@
 # Release Notes
 
+## v2.4.0
+Date: 2018-09-16  
+Type: Minor  
+This release makes the following changes, updates, and bug fixes:
+1. Add babel build step to provide compatibility with ES5 environments
+
 ## v2.3.0
 Date: 2018-07-31  
 Type: Minor  
