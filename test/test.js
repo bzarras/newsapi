@@ -3,7 +3,7 @@
 require('dotenv').config();
 
 let should = require('should'),
-  NewsAPI = require('../index');
+  NewsAPI = require('../dist/index');
 
 if (!process.env.API_KEY) throw new Error('No API Key specified. Please create an environment variable named API_KEY');
 let newsapi = new NewsAPI(process.env.API_KEY);
