@@ -21,7 +21,7 @@
   },
   "license": "MIT",
   "dependencies": {
-    "node-fetch": "^2.2.0",
+    "node-fetch": "^2.6.0",
     "core-js": "^3.6.5"
   },
   "devDependencies": {
