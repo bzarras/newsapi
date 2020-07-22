@@ -24,7 +24,9 @@ $ npm install newsapi --save
 ## Test
 ```shell
 $ API_KEY=<your api key> npm test
+
 ```
+
 
 ## Example usage of v2 API
 All methods support promises and node-style callbacks.
@@ -85,6 +87,12 @@ newsapi.v2.sources({
     }
   */
 });
+```
+## Example usage of v2 API with  CORS Proxy
+You can set the url CORS proxy.
+```js
+const NewsAPI = require('newsapi');
+const newsapi = new NewsAPI('YOUR_API_KEY', { corsProxyUrl: 'https://cors-anywhere.herokuapp.com/' });
 ```
 
 ## Example usage of v1 legacy API

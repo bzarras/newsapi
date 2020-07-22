@@ -12,28 +12,33 @@
 
 const fetch = require('node-fetch'),
   qs = require('querystring'),
-  host = 'https://newsapi.org';
+  host = 'https://newsapi.org',
+  CORSProxyUrl = '';
 
 let API_KEY; // To be set by clients
 
 class NewsAPI {
-  constructor (apiKey) {
+  constructor(apiKey, options) {
+
+    const { corsProxyUrl } = options;
+    CORSProxyUrl = corsProxyUrl ? corsProxyUrl : ''; //assigns to global
+
     if (!apiKey) throw new Error('No API key specified');
     API_KEY = apiKey;
     this.v2 = {
-      topHeadlines (...args) {
+      topHeadlines(...args) {
         const { params = { language: 'en' }, options, cb } = splitArgsIntoOptionsAndCallback(args);
         const url = createUrlFromEndpointAndOptions('/v2/top-headlines', params);
         return getDataFromWeb(url, options, API_KEY, cb);
       },
 
-      everything (...args) {
+      everything(...args) {
         const { params, options, cb } = splitArgsIntoOptionsAndCallback(args);
         const url = createUrlFromEndpointAndOptions('/v2/everything', params);
         return getDataFromWeb(url, options, API_KEY, cb);
       },
 
-      sources (...args) {
+      sources(...args) {
         const { params, options, cb } = splitArgsIntoOptionsAndCallback(args);
         const url = createUrlFromEndpointAndOptions('/v2/sources', params);
         return getDataFromWeb(url, options, API_KEY, cb);
@@ -41,13 +46,13 @@ class NewsAPI {
     }
   }
 
-  sources (...args) {
+  sources(...args) {
     const { params, options, cb } = splitArgsIntoOptionsAndCallback(args);
     const url = createUrlFromEndpointAndOptions('/v1/sources', params);
     return getDataFromWeb(url, options, null, cb);
   }
 
-  articles (...args) {
+  articles(...args) {
     const { params, options, cb } = splitArgsIntoOptionsAndCallback(args);
     const url = createUrlFromEndpointAndOptions('/v1/articles', params);
     return getDataFromWeb(url, options, API_KEY, cb);
@@ -68,7 +73,7 @@ class NewsAPIError extends Error {
  * @param {Array}   args The arguments to the function
  * @return {Object}
  */
-function splitArgsIntoOptionsAndCallback (args) {
+function splitArgsIntoOptionsAndCallback(args) {
   let params;
   let options;
   let cb;
@@ -96,9 +101,9 @@ function splitArgsIntoOptionsAndCallback (args) {
  * @param {Object} [options]
  * @return {String}
  */
-function createUrlFromEndpointAndOptions (endpoint, options) {
+function createUrlFromEndpointAndOptions(endpoint, options) {
   const query = qs.stringify(options);
-  const baseURL = `${host}${endpoint}`;
+  const baseURL = `${CORSProxyUrl}${host}${endpoint}`;
   return query ? `${baseURL}?${query}` : baseURL;
 }
 
