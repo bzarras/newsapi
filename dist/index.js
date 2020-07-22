@@ -265,9 +265,13 @@ function createUrlFromEndpointAndOptions(endpoint, options) {
 
 
 function getDataFromWeb(url, options, apiKey, cb) {
-  var useCallback = 'function' === typeof cb;
+  var useCallback = 'function' === typeof cb; // CORS Headers by default
+
   var reqOptions = {
-    headers: {}
+    'mode': 'cors',
+    headers: {
+      'Access-Control-Allow-Origin': '*'
+    }
   };
 
   if (apiKey) {

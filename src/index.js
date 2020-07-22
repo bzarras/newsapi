@@ -116,13 +116,16 @@ function createUrlFromEndpointAndOptions(endpoint, options) {
  */
 function getDataFromWeb(url, options, apiKey, cb) {
   let useCallback = 'function' === typeof cb;
-  const reqOptions = { headers: {} };
+  // CORS Headers by default
+  const reqOptions = { 'mode': 'cors', headers: { 'Access-Control-Allow-Origin': '*' } };
   if (apiKey) {
     reqOptions.headers['X-Api-Key'] = apiKey;
   }
   if (options && options.noCache === true) {
     reqOptions.headers['X-No-Cache'] = 'true';
   }
+
+
   return fetch(url, reqOptions).then(res => Promise.all([res, res.json()])).then(([res, body]) => {
     if (body.status === 'error') throw new NewsAPIError(body);
     // 'showHeaders' option can be used for clients to debug response headers
