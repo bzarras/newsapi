@@ -13,9 +13,9 @@
 //GLOBALS
 const fetch = require('node-fetch'),
   qs = require('querystring'),
-  host = 'https://newsapi.org',
-  CORSProxyUrl = ''; // To be set by user if declared in options
-
+  host = 'https://newsapi.org';
+  
+let CORSProxyUrl = ''; // To be set by user if declared in options
 let API_KEY; // To be set by clients
 
 class NewsAPI {

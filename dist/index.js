@@ -93,13 +93,11 @@ function _defineProperties(target, props) { for (var i = 0; i < props.length; i+
 
 function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
 
-function _readOnlyError(name) { throw new Error("\"" + name + "\" is read-only"); }
-
 var fetch = require('node-fetch'),
     qs = require('querystring'),
-    host = 'https://newsapi.org',
-    CORSProxyUrl = ''; // To be set by user if declared in options
+    host = 'https://newsapi.org';
 
+var CORSProxyUrl = ''; // To be set by user if declared in options
 
 var API_KEY; // To be set by clients
 
@@ -110,7 +108,7 @@ var NewsAPI = /*#__PURE__*/function () {
     _classCallCheck(this, NewsAPI);
 
     var corsProxyUrl = options.corsProxyUrl;
-    CORSProxyUrl = (_readOnlyError("CORSProxyUrl"), corsProxyUrl ? corsProxyUrl : ''); //assigns to global
+    CORSProxyUrl = corsProxyUrl ? corsProxyUrl : ''; //assigns to global
 
     if (!apiKey) throw new Error('No API key specified');
     API_KEY = apiKey;
