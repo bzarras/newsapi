@@ -145,3 +145,14 @@ newsapi.v2.everything({
   ...
 });
 ```
+
+## UPDATE: CORS issue fix
+The following option has been added to requests by default and should resolve most CORS issues:
+```js
+const reqOptions = { 'mode': 'cors', headers: { 'Access-Control-Allow-Origin': '*' } };
+```
+
+If that does not work for you, you can use the `corsProxyUrl` option in the NewsAPI constructor to customize the request url:
+```js
+const newsapi = new NewsAPI('YOUR_API_KEY', { corsProxyUrl: 'https://cors-anywhere.herokuapp.com/' });
+```
