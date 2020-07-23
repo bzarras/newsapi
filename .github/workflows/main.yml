@@ -28,6 +28,8 @@ jobs:
       
     - name: Unit tests
       run: npm test
+      env:
+        API_KEY: ${{ secrets.API_KEY }}
 
     # Runs a set of commands using the runners shell
     # - name: Run a multi-line script
