@@ -9,6 +9,7 @@
  * The author of this code has no formal relationship with NewsAPI.org and does not
  * claim to have created any of the facilities provided by NewsAPI.org.
  */
+//GLOBALS
 
 require("core-js/modules/es.symbol");
 
@@ -92,15 +93,24 @@ function _defineProperties(target, props) { for (var i = 0; i < props.length; i+
 
 function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
 
+function _readOnlyError(name) { throw new Error("\"" + name + "\" is read-only"); }
+
 var fetch = require('node-fetch'),
     qs = require('querystring'),
-    host = 'https://newsapi.org';
+    host = 'https://newsapi.org',
+    CORSProxyUrl = ''; // To be set by user if declared in options
+
 
 var API_KEY; // To be set by clients
 
 var NewsAPI = /*#__PURE__*/function () {
   function NewsAPI(apiKey) {
+    var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+
     _classCallCheck(this, NewsAPI);
+
+    var corsProxyUrl = options.corsProxyUrl;
+    CORSProxyUrl = (_readOnlyError("CORSProxyUrl"), corsProxyUrl ? corsProxyUrl : ''); //assigns to global
 
     if (!apiKey) throw new Error('No API key specified');
     API_KEY = apiKey;
@@ -250,7 +260,7 @@ function splitArgsIntoOptionsAndCallback(args) {
 
 function createUrlFromEndpointAndOptions(endpoint, options) {
   var query = qs.stringify(options);
-  var baseURL = "".concat(host).concat(endpoint);
+  var baseURL = "".concat(CORSProxyUrl).concat(host).concat(endpoint);
   return query ? "".concat(baseURL, "?").concat(query) : baseURL;
 }
 /**
@@ -263,9 +273,13 @@ function createUrlFromEndpointAndOptions(endpoint, options) {
 
 
 function getDataFromWeb(url, options, apiKey, cb) {
-  var useCallback = 'function' === typeof cb;
+  var useCallback = 'function' === typeof cb; // CORS Headers by default
+
   var reqOptions = {
-    headers: {}
+    'mode': 'cors',
+    headers: {
+      'Access-Control-Allow-Origin': '*'
+    }
   };
 
   if (apiKey) {
