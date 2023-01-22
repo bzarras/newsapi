@@ -12,7 +12,6 @@
 
 //GLOBALS
 const fetch = require('node-fetch'),
-  qs = require('querystring'),
   host = 'https://newsapi.org';
 
 let CORSProxyUrl = ''; // To be set by user if declared in options
@@ -104,7 +103,7 @@ function splitArgsIntoOptionsAndCallback(args) {
  * @return {String}
  */
 function createUrlFromEndpointAndOptions(endpoint, options) {
-  const query = qs.stringify(options);
+  const query = new URLSearchParams(options).toString();
   const baseURL = `${CORSProxyUrl}${host}${endpoint}`;
   return query ? `${baseURL}?${query}` : baseURL;
 }

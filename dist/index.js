@@ -53,6 +53,8 @@ require("core-js/modules/es.string.iterator");
 
 require("core-js/modules/web.dom-collections.iterator");
 
+require("core-js/modules/web.url");
+
 function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _unsupportedIterableToArray(arr, i) || _nonIterableRest(); }
 
 function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
@@ -94,7 +96,6 @@ function _defineProperties(target, props) { for (var i = 0; i < props.length; i+
 function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
 
 var fetch = require('node-fetch'),
-    qs = require('querystring'),
     host = 'https://newsapi.org';
 
 var CORSProxyUrl = ''; // To be set by user if declared in options
@@ -257,7 +258,7 @@ function splitArgsIntoOptionsAndCallback(args) {
 
 
 function createUrlFromEndpointAndOptions(endpoint, options) {
-  var query = qs.stringify(options);
+  var query = new URLSearchParams(options).toString();
   var baseURL = "".concat(CORSProxyUrl).concat(host).concat(endpoint);
   return query ? "".concat(baseURL, "?").concat(query) : baseURL;
 }
