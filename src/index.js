@@ -15,58 +15,72 @@ const fetch = require('node-fetch'),
   qs = require('querystring'),
   host = 'https://newsapi.org';
 
-let CORSProxyUrl = ''; // To be set by user if declared in options
-
-let API_KEY; // To be set by clients
+// Per-instance configuration, kept out of the public object so that multiple clients
+// don't overwrite each other's API key or proxy
+const configs = new WeakMap();
 
 class NewsAPI {
   constructor(apiKey, options = {}) {
-
-    const { corsProxyUrl } = options;
-    CORSProxyUrl = corsProxyUrl ? corsProxyUrl : ''; //assigns to global
-
     if (!apiKey) throw new Error('No API key specified');
-    API_KEY = apiKey;
+
+    configs.set(this, {
+      apiKey,
+      corsProxyUrl: options.corsProxyUrl || ''
+    });
+    const request = (...requestArgs) => makeRequest(this, ...requestArgs);
+
+    // Bound so they keep working when destructured off the client, as they did before
+    this.sources = this.sources.bind(this);
+    this.articles = this.articles.bind(this);
+
     this.v2 = {
       topHeadlines(...args) {
-        const { params = { language: 'en' }, options, cb } = splitArgsIntoOptionsAndCallback(args);
-        const url = createUrlFromEndpointAndOptions('/v2/top-headlines', params);
-        return getDataFromWeb(url, options, API_KEY, cb);
+        return request('/v2/top-headlines', args, { language: 'en' });
       },
 
       everything(...args) {
-        const { params, options, cb } = splitArgsIntoOptionsAndCallback(args);
-        const url = createUrlFromEndpointAndOptions('/v2/everything', params);
-        return getDataFromWeb(url, options, API_KEY, cb);
+        return request('/v2/everything', args);
       },
 
       sources(...args) {
-        const { params, options, cb } = splitArgsIntoOptionsAndCallback(args);
-        const url = createUrlFromEndpointAndOptions('/v2/sources', params);
-        return getDataFromWeb(url, options, API_KEY, cb);
+        return request('/v2/sources', args);
       }
-    }
+    };
   }
 
   sources(...args) {
-    const { params, options, cb } = splitArgsIntoOptionsAndCallback(args);
-    const url = createUrlFromEndpointAndOptions('/v1/sources', params);
-    return getDataFromWeb(url, options, null, cb);
+    return makeRequest(this, '/v1/sources', args, undefined, false);
   }
 
   articles(...args) {
-    const { params, options, cb } = splitArgsIntoOptionsAndCallback(args);
-    const url = createUrlFromEndpointAndOptions('/v1/articles', params);
-    return getDataFromWeb(url, options, API_KEY, cb);
+    return makeRequest(this, '/v1/articles', args);
   }
 }
 
 class NewsAPIError extends Error {
-  constructor(err) {
-    super();
+  constructor(err, httpStatus) {
+    super(err.message);
+    // The name format is kept for backwards compatibility. Use `code` to check for specific errors.
     this.name = `NewsAPIError: ${err.code}`;
-    this.message = err.message;
+    this.code = err.code;
+    this.status = httpStatus;
   }
+}
+
+/**
+ * Sends a request to an endpoint using the configuration of the given client.
+ * @param {NewsAPI} client        The client making the request
+ * @param {String}  endpoint      The API endpoint, e.g. '/v2/everything'
+ * @param {Array}   args          The arguments passed to the public method
+ * @param {Object}  [defaultParams] Params to use if none were provided
+ * @param {Boolean} [useApiKey]   Whether to send the API key
+ * @return {Promise<Object>}
+ */
+function makeRequest(client, endpoint, args, defaultParams, useApiKey = true) {
+  const config = configs.get(client);
+  const { params = defaultParams, options, cb } = splitArgsIntoOptionsAndCallback(args);
+  const url = createUrlFromEndpointAndOptions(config.corsProxyUrl, endpoint, params);
+  return getDataFromWeb(url, options, useApiKey ? config.apiKey : null, cb);
 }
 
 /**
@@ -97,49 +111,80 @@ function splitArgsIntoOptionsAndCallback(args) {
 }
 
 /**
- * Creates a url string from an endpoint and an options object by appending the endpoint
- * to the global "host" const and appending the options as querystring parameters.
+ * Creates a url string from an endpoint and an options object by prepending the
+ * "host" const (and an optional CORS proxy) to the endpoint and appending the
+ * options as querystring parameters.
+ * @param {String} corsProxyUrl
  * @param {String} endpoint
  * @param {Object} [options]
  * @return {String}
  */
-function createUrlFromEndpointAndOptions(endpoint, options) {
+function createUrlFromEndpointAndOptions(corsProxyUrl, endpoint, options) {
   const query = qs.stringify(options);
-  const baseURL = `${CORSProxyUrl}${host}${endpoint}`;
+  const baseURL = `${corsProxyUrl}${host}${endpoint}`;
   return query ? `${baseURL}?${query}` : baseURL;
 }
 
 /**
+ * Parses a response body as JSON. Responses that aren't JSON (e.g. an HTML error page
+ * from a proxy) are turned into a NewsAPIError instead of a JSON parse error.
+ * @param  {Response} res
+ * @return {Promise<Object>}
+ */
+function parseResponseBody(res) {
+  return res.text().then(text => {
+    try {
+      return JSON.parse(text);
+    } catch (e) {
+      throw new NewsAPIError({
+        code: 'invalidResponse',
+        message: `Expected a JSON response from News API but received HTTP ${res.status} ${res.statusText}`
+      }, res.status);
+    }
+  });
+}
+
+/**
  * Takes a URL string and returns a Promise containing
- * a buffer with the data from the web.
- * @param  {String} url      A URL String
- * @param  {String} apiKey   (Optional) A key to be used for authentication
- * @return {Promise<Buffer>} A Promise containing a Buffer
+ * the parsed JSON response from the web.
+ * @param  {String}   url      A URL String
+ * @param  {Object}   [options]  Request options: noCache, showHeaders
+ * @param  {String}   [apiKey]   A key to be used for authentication
+ * @param  {Function} [cb]       Node-style callback
+ * @return {Promise<Object>}
  */
 function getDataFromWeb(url, options, apiKey, cb) {
-  let useCallback = 'function' === typeof cb;
-  // CORS Headers by default
-  const reqOptions = { 'mode': 'cors', headers: { 'Access-Control-Allow-Origin': '*' } };
+  const reqOptions = { headers: {} };
   if (apiKey) {
     reqOptions.headers['X-Api-Key'] = apiKey;
   }
   if (options && options.noCache === true) {
     reqOptions.headers['X-No-Cache'] = 'true';
   }
-  return fetch(url, reqOptions).then(res => Promise.all([res, res.json()])).then(([res, body]) => {
-    if (body.status === 'error') throw new NewsAPIError(body);
+  const promise = fetch(url, reqOptions).then(res => parseResponseBody(res).then(body => {
+    if (body.status === 'error') throw new NewsAPIError(body, res.status);
+    if (!res.ok) {
+      throw new NewsAPIError({
+        code: 'httpError',
+        message: `News API responded with HTTP ${res.status} ${res.statusText}`
+      }, res.status);
+    }
     // 'showHeaders' option can be used for clients to debug response headers
     // response will be in form of { headers, body }
     if (options && options.showHeaders) {
-      if (useCallback) return cb(null, { headers: res.headers, body });
       return { headers: res.headers, body };
     }
-    if (useCallback) return cb(null, body);
     return body;
-  }).catch(err => {
-    if (useCallback) return cb(err);
-    throw err;
-  });
+  }));
+  if ('function' !== typeof cb) return promise;
+  // The callback is invoked outside of the promise chain so that an exception thrown
+  // by the callback can't cause it to be called a second time with that exception.
+  return promise.then(
+    data => { setTimeout(() => cb(null, data), 0); },
+    err => { setTimeout(() => cb(err), 0); }
+  );
 }
+
+NewsAPI.NewsAPIError = NewsAPIError;
 
 module.exports = NewsAPI;
