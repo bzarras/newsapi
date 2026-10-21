@@ -1,0 +1,60 @@
+name: Release
+
+# Publishes the package to npm when a GitHub Release is published.
+# The release's tag must match the version in package.json, e.g. v2.4.2.
+on:
+  release:
+    types: [ published ]
+
+permissions:
+  contents: read
+  # Needed for npm trusted publishing (OIDC) and provenance
+  id-token: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    environment: npm
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          registry-url: https://registry.npmjs.org
+
+      # Trusted publishing requires npm 11.5.1 or later
+      - name: Update npm
+        run: npm install -g npm@^11.5.1
+
+      - name: Check that the release tag matches package.json
+        env:
+          TAG: ${{ github.event.release.tag_name }}
+        run: |
+          VERSION="v$(node -p "require('./package.json').version")"
+          if [ "$TAG" != "$VERSION" ]; then
+            echo "::error::Release tag $TAG does not match package.json version $VERSION"
+            exit 1
+          fi
+
+      - name: Install dependencies
+        run: npm ci
+
+      # Builds dist/ and runs the unit tests
+      - name: Unit tests
+        run: npm test
+
+      - name: Check that the committed build is up to date
+        run: git diff --exit-code -- dist
+
+      # prepublishOnly builds and tests again before publishing.
+      # Prereleases (e.g. v2.5.0-beta.1) are published under the "next" tag so they aren't installed by default.
+      - name: Publish to npm
+        env:
+          PRERELEASE: ${{ github.event.release.prerelease }}
+        run: |
+          if [ "$PRERELEASE" = "true" ]; then
+            npm publish --tag next
+          else
+            npm publish
+          fi

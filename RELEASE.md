@@ -1,6 +1,16 @@
 # Release Notes
 
-## Unreleased
+## How to release
+Releases are published to npm by the [Release workflow](.github/workflows/release.yml) when a GitHub Release is published.
+1. In a pull request, bump the version with `npm version <patch|minor> --no-git-tag-version` and add release notes below.
+2. After it's merged, [create a GitHub Release](https://github.com/bzarras/newsapi/releases/new) on `master` with a new tag
+   matching the version (e.g. `v2.4.2`) and the release notes. Mark it as a pre-release to publish under the `next` tag instead of `latest`.
+3. The workflow checks that the tag matches `package.json`, runs the tests, and publishes with provenance.
+
+The major version of this library matches the version of the News API it wraps, so changes must not break current consumers.
+
+## v2.4.2
+Date: 2026-10-21  
 Type: Patch  
 This release makes the following changes, updates, and bug fixes:
 1. Fix multiple `NewsAPI` instances overwriting each other's API key and CORS proxy URL.
