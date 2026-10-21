@@ -1,6 +1,6 @@
 {
   "name": "newsapi",
-  "version": "2.4.1",
+  "version": "2.4.2",
   "description": "A node interface for News API from newsapi.org",
   "main": "dist/index.js",
   "scripts": {
@@ -20,7 +20,7 @@
   "author": "Ben Zarras",
   "repository": {
     "type": "git",
-    "url": "https://github.com/bzarras/newsapi"
+    "url": "git+https://github.com/bzarras/newsapi.git"
   },
   "license": "MIT",
   "dependencies": {
