@@ -1,11 +1,17 @@
 # Release Notes
 
 ## How to release
-Releases are published to npm by the [Release workflow](.github/workflows/release.yml) when a GitHub Release is published.
+Releases are staged on npm by the [Release workflow](.github/workflows/release.yml) when a GitHub Release is published,
+and go live once a maintainer approves them.
 1. In a pull request, bump the version with `npm version <patch|minor> --no-git-tag-version` and add release notes below.
 2. After it's merged, [create a GitHub Release](https://github.com/bzarras/newsapi/releases/new) on `master` with a new tag
    matching the version (e.g. `v2.4.2`) and the release notes. Mark it as a pre-release to publish under the `next` tag instead of `latest`.
-3. The workflow checks that the tag matches `package.json`, runs the tests, and publishes with provenance.
+3. The workflow checks that the tag matches `package.json`, runs the tests, and stages the version on npm with provenance.
+4. Approve the staged version with 2FA on [npmjs.com](https://www.npmjs.com/package/newsapi) under Staged Packages, or with
+   `npm stage list` and `npm stage approve <stage-id>`. To cancel, reject it with `npm stage reject <stage-id>`.
+
+npm accepts releases from GitHub Actions through a stage-only [trusted publisher](https://docs.npmjs.com/trusted-publishers/)
+(workflow `release.yml`, environment `npm`), so no npm token is stored in the repository.
 
 The major version of this library matches the version of the News API it wraps, so changes must not break current consumers.
 

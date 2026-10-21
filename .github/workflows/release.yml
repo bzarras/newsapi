@@ -1,6 +1,7 @@
 name: Release
 
-# Publishes the package to npm when a GitHub Release is published.
+# Stages the package on npm when a GitHub Release is published. A maintainer then approves the
+# staged version with 2FA on npmjs.com (or with `npm stage approve`) before it can be installed.
 # The release's tag must match the version in package.json, e.g. v2.4.2.
 on:
   release:
@@ -23,9 +24,9 @@ jobs:
           node-version: 24
           registry-url: https://registry.npmjs.org
 
-      # Trusted publishing requires npm 11.5.1 or later
+      # npm stage publish requires npm 11.15.0 or later
       - name: Update npm
-        run: npm install -g npm@^11.5.1
+        run: npm install -g npm@^11.15.0
 
       - name: Check that the release tag matches package.json
         env:
@@ -47,14 +48,16 @@ jobs:
       - name: Check that the committed build is up to date
         run: git diff --exit-code -- dist
 
-      # prepublishOnly builds and tests again before publishing.
-      # Prereleases (e.g. v2.5.0-beta.1) are published under the "next" tag so they aren't installed by default.
-      - name: Publish to npm
+      # The trusted publisher on npm is stage-only, so this can't make a version installable by itself.
+      # A staged version's dist-tag can't be changed later, so it's always set explicitly.
+      # Prereleases (e.g. v2.5.0-beta.1) go to "next" so they aren't installed by default.
+      - name: Stage on npm
         env:
           PRERELEASE: ${{ github.event.release.prerelease }}
         run: |
           if [ "$PRERELEASE" = "true" ]; then
-            npm publish --tag next
+            npm stage publish --tag next
           else
-            npm publish
+            npm stage publish --tag latest
           fi
+          echo "::notice::Staged on npm. Approve it at https://www.npmjs.com/package/newsapi under Staged Packages, or with npm stage approve."
