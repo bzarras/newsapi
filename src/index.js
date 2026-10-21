@@ -154,6 +154,8 @@ function parseResponseBody(res) {
  * @return {Promise<Object>}
  */
 function getDataFromWeb(url, options, apiKey, cb) {
+  // Note: requests are sent without CORS headers. 'Access-Control-Allow-Origin' is a response header,
+  // and sending it with a request only causes browsers to make a preflight request.
   const reqOptions = { headers: {} };
   if (apiKey) {
     reqOptions.headers['X-Api-Key'] = apiKey;
@@ -161,28 +163,21 @@ function getDataFromWeb(url, options, apiKey, cb) {
   if (options && options.noCache === true) {
     reqOptions.headers['X-No-Cache'] = 'true';
   }
-  const promise = fetch(url, reqOptions).then(res => parseResponseBody(res).then(body => {
+  let useCallback = 'function' === typeof cb;
+  return fetch(url, reqOptions).then(res => parseResponseBody(res).then(body => {
     if (body.status === 'error') throw new NewsAPIError(body, res.status);
-    if (!res.ok) {
-      throw new NewsAPIError({
-        code: 'httpError',
-        message: `News API responded with HTTP ${res.status} ${res.statusText}`
-      }, res.status);
-    }
     // 'showHeaders' option can be used for clients to debug response headers
     // response will be in form of { headers, body }
     if (options && options.showHeaders) {
+      if (useCallback) return cb(null, { headers: res.headers, body });
       return { headers: res.headers, body };
     }
+    if (useCallback) return cb(null, body);
     return body;
-  }));
-  if ('function' !== typeof cb) return promise;
-  // The callback is invoked outside of the promise chain so that an exception thrown
-  // by the callback can't cause it to be called a second time with that exception.
-  return promise.then(
-    data => { setTimeout(() => cb(null, data), 0); },
-    err => { setTimeout(() => cb(err), 0); }
-  );
+  })).catch(err => {
+    if (useCallback) return cb(err);
+    throw err;
+  });
 }
 
 NewsAPI.NewsAPIError = NewsAPIError;

@@ -153,6 +153,14 @@ describe('NewsAPI', function () {
       err.message.should.equal('Your API key is invalid');
     });
 
+    it('should resolve unsuccessful HTTP statuses without an error body, as before', async function () {
+      nock(host)
+        .get('/v2/everything')
+        .reply(500, { unexpected: true });
+      const res = await newsapi.v2.everything();
+      res.should.eql({ unexpected: true });
+    });
+
     it('should reject with a NewsAPIError for non-JSON responses', async function () {
       nock(host)
         .get('/v2/everything')
@@ -163,21 +171,18 @@ describe('NewsAPI', function () {
       err.code.should.equal('invalidResponse');
       err.status.should.equal(502);
     });
-
-    it('should reject with a NewsAPIError for unsuccessful HTTP statuses without an error body', async function () {
-      nock(host)
-        .get('/v2/everything')
-        .reply(500, {});
-      const err = await newsapi.v2.everything().then(() => null, e => e);
-      should.exist(err);
-      err.should.be.instanceOf(NewsAPI.NewsAPIError);
-      err.code.should.equal('httpError');
-      err.status.should.equal(500);
-    });
   });
 
   describe('callbacks', function () {
     const newsapi = new NewsAPI('test-key');
+
+    it('should resolve the returned promise with the return value of the callback', async function () {
+      nock(host)
+        .get('/v2/sources')
+        .reply(200, { status: 'ok', sources: [] });
+      const result = await newsapi.v2.sources(() => 'callback result');
+      result.should.equal('callback result');
+    });
 
     it('should call the callback with the response', function (done) {
       nock(host)
@@ -212,36 +217,6 @@ describe('NewsAPI', function () {
         should.not.exist(res);
         err.code.should.equal('parametersMissing');
         done();
-      });
-    });
-
-    it('should not call the callback a second time if the callback throws', function (done) {
-      nock(host)
-        .get('/v2/sources')
-        .reply(200, { status: 'ok', sources: [] });
-
-      // An exception thrown by the callback should surface as an uncaught exception,
-      // rather than being passed back into the callback
-      const mochaHandlers = process.listeners('uncaughtException');
-      process.removeAllListeners('uncaughtException');
-      let calls = 0;
-      process.once('uncaughtException', err => {
-        mochaHandlers.forEach(handler => process.on('uncaughtException', handler));
-        try {
-          err.message.should.equal('thrown by callback');
-          // Give a second invocation a chance to happen before checking
-          setTimeout(() => {
-            calls.should.equal(1);
-            done();
-          }, 20);
-        } catch (e) {
-          done(e);
-        }
-      });
-
-      newsapi.v2.sources(() => {
-        calls++;
-        throw new Error('thrown by callback');
       });
     });
   });

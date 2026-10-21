@@ -36,7 +36,6 @@ require("core-js/modules/es.object.to-string.js");
 require("core-js/modules/es.string.iterator.js");
 require("core-js/modules/es.weak-map.js");
 require("core-js/modules/web.dom-collections.iterator.js");
-require("core-js/modules/web.timers.js");
 function _typeof(o) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (o) { return typeof o; } : function (o) { return o && "function" == typeof Symbol && o.constructor === Symbol && o !== Symbol.prototype ? "symbol" : typeof o; }, _typeof(o); }
 function _callSuper(t, o, e) { return o = _getPrototypeOf(o), _possibleConstructorReturn(t, _isNativeReflectConstruct() ? Reflect.construct(o, e || [], _getPrototypeOf(t).constructor) : o.apply(t, e)); }
 function _possibleConstructorReturn(t, e) { if (e && ("object" == _typeof(e) || "function" == typeof e)) return e; if (void 0 !== e) throw new TypeError("Derived constructors may only return object or undefined"); return _assertThisInitialized(t); }
@@ -231,6 +230,8 @@ function parseResponseBody(res) {
  * @return {Promise<Object>}
  */
 function getDataFromWeb(url, options, apiKey, cb) {
+  // Note: requests are sent without CORS headers. 'Access-Control-Allow-Origin' is a response header,
+  // and sending it with a request only causes browsers to make a preflight request.
   var reqOptions = {
     headers: {}
   };
@@ -240,37 +241,28 @@ function getDataFromWeb(url, options, apiKey, cb) {
   if (options && options.noCache === true) {
     reqOptions.headers['X-No-Cache'] = 'true';
   }
-  var promise = fetch(url, reqOptions).then(function (res) {
+  var useCallback = 'function' === typeof cb;
+  return fetch(url, reqOptions).then(function (res) {
     return parseResponseBody(res).then(function (body) {
       if (body.status === 'error') throw new NewsAPIError(body, res.status);
-      if (!res.ok) {
-        throw new NewsAPIError({
-          code: 'httpError',
-          message: "News API responded with HTTP ".concat(res.status, " ").concat(res.statusText)
-        }, res.status);
-      }
       // 'showHeaders' option can be used for clients to debug response headers
       // response will be in form of { headers, body }
       if (options && options.showHeaders) {
+        if (useCallback) return cb(null, {
+          headers: res.headers,
+          body: body
+        });
         return {
           headers: res.headers,
           body: body
         };
       }
+      if (useCallback) return cb(null, body);
       return body;
     });
-  });
-  if ('function' !== typeof cb) return promise;
-  // The callback is invoked outside of the promise chain so that an exception thrown
-  // by the callback can't cause it to be called a second time with that exception.
-  return promise.then(function (data) {
-    setTimeout(function () {
-      return cb(null, data);
-    }, 0);
-  }, function (err) {
-    setTimeout(function () {
-      return cb(err);
-    }, 0);
+  })["catch"](function (err) {
+    if (useCallback) return cb(err);
+    throw err;
   });
 }
 NewsAPI.NewsAPIError = NewsAPIError;
