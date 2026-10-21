@@ -1,4 +1,5 @@
 'use strict';
+
 /**
  * This module provides access to the News API
  * https://newsapi.org/
@@ -9,312 +10,260 @@
  * The author of this code has no formal relationship with NewsAPI.org and does not
  * claim to have created any of the facilities provided by NewsAPI.org.
  */
+
 //GLOBALS
-
-require("core-js/modules/es.symbol");
-
-require("core-js/modules/es.symbol.description");
-
-require("core-js/modules/es.symbol.iterator");
-
-require("core-js/modules/es.array.concat");
-
-require("core-js/modules/es.array.from");
-
-require("core-js/modules/es.array.index-of");
-
-require("core-js/modules/es.array.iterator");
-
-require("core-js/modules/es.array.slice");
-
-require("core-js/modules/es.date.to-string");
-
-require("core-js/modules/es.function.bind");
-
-require("core-js/modules/es.function.name");
-
-require("core-js/modules/es.map");
-
-require("core-js/modules/es.object.create");
-
-require("core-js/modules/es.object.define-property");
-
-require("core-js/modules/es.object.set-prototype-of");
-
-require("core-js/modules/es.object.to-string");
-
-require("core-js/modules/es.promise");
-
-require("core-js/modules/es.reflect.construct");
-
-require("core-js/modules/es.regexp.to-string");
-
-require("core-js/modules/es.string.iterator");
-
-require("core-js/modules/web.dom-collections.iterator");
-
-function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _unsupportedIterableToArray(arr, i) || _nonIterableRest(); }
-
-function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
-
-function _unsupportedIterableToArray(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen); }
-
-function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) { arr2[i] = arr[i]; } return arr2; }
-
-function _iterableToArrayLimit(arr, i) { if (typeof Symbol === "undefined" || !(Symbol.iterator in Object(arr))) return; var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"] != null) _i["return"](); } finally { if (_d) throw _e; } } return _arr; }
-
-function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
-
-function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
-
-function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); if (superClass) _setPrototypeOf(subClass, superClass); }
-
-function _createSuper(Derived) { var hasNativeReflectConstruct = _isNativeReflectConstruct(); return function _createSuperInternal() { var Super = _getPrototypeOf(Derived), result; if (hasNativeReflectConstruct) { var NewTarget = _getPrototypeOf(this).constructor; result = Reflect.construct(Super, arguments, NewTarget); } else { result = Super.apply(this, arguments); } return _possibleConstructorReturn(this, result); }; }
-
-function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
-
-function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
-
-function _wrapNativeSuper(Class) { var _cache = typeof Map === "function" ? new Map() : undefined; _wrapNativeSuper = function _wrapNativeSuper(Class) { if (Class === null || !_isNativeFunction(Class)) return Class; if (typeof Class !== "function") { throw new TypeError("Super expression must either be null or a function"); } if (typeof _cache !== "undefined") { if (_cache.has(Class)) return _cache.get(Class); _cache.set(Class, Wrapper); } function Wrapper() { return _construct(Class, arguments, _getPrototypeOf(this).constructor); } Wrapper.prototype = Object.create(Class.prototype, { constructor: { value: Wrapper, enumerable: false, writable: true, configurable: true } }); return _setPrototypeOf(Wrapper, Class); }; return _wrapNativeSuper(Class); }
-
-function _construct(Parent, args, Class) { if (_isNativeReflectConstruct()) { _construct = Reflect.construct; } else { _construct = function _construct(Parent, args, Class) { var a = [null]; a.push.apply(a, args); var Constructor = Function.bind.apply(Parent, a); var instance = new Constructor(); if (Class) _setPrototypeOf(instance, Class.prototype); return instance; }; } return _construct.apply(null, arguments); }
-
-function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Reflect.construct) return false; if (Reflect.construct.sham) return false; if (typeof Proxy === "function") return true; try { Date.prototype.toString.call(Reflect.construct(Date, [], function () {})); return true; } catch (e) { return false; } }
-
-function _isNativeFunction(fn) { return Function.toString.call(fn).indexOf("[native code]") !== -1; }
-
-function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
-
-function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
-
-function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
-
+require("core-js/modules/es.symbol.js");
+require("core-js/modules/es.symbol.description.js");
+require("core-js/modules/es.symbol.iterator.js");
+require("core-js/modules/es.symbol.to-primitive.js");
+require("core-js/modules/es.array.index-of.js");
+require("core-js/modules/es.date.to-primitive.js");
+require("core-js/modules/es.date.to-string.js");
+require("core-js/modules/es.map.js");
+require("core-js/modules/es.number.constructor.js");
+require("core-js/modules/es.object.create.js");
+require("core-js/modules/es.object.define-property.js");
+require("core-js/modules/es.object.get-prototype-of.js");
+require("core-js/modules/es.object.set-prototype-of.js");
+require("core-js/modules/es.reflect.construct.js");
+require("core-js/modules/es.regexp.to-string.js");
+require("core-js/modules/es.array.concat.js");
+require("core-js/modules/es.array.iterator.js");
+require("core-js/modules/es.function.bind.js");
+require("core-js/modules/es.function.name.js");
+require("core-js/modules/es.object.keys.js");
+require("core-js/modules/es.object.to-string.js");
+require("core-js/modules/es.string.iterator.js");
+require("core-js/modules/es.weak-map.js");
+require("core-js/modules/web.dom-collections.iterator.js");
+function _typeof(o) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (o) { return typeof o; } : function (o) { return o && "function" == typeof Symbol && o.constructor === Symbol && o !== Symbol.prototype ? "symbol" : typeof o; }, _typeof(o); }
+function _callSuper(t, o, e) { return o = _getPrototypeOf(o), _possibleConstructorReturn(t, _isNativeReflectConstruct() ? Reflect.construct(o, e || [], _getPrototypeOf(t).constructor) : o.apply(t, e)); }
+function _possibleConstructorReturn(t, e) { if (e && ("object" == _typeof(e) || "function" == typeof e)) return e; if (void 0 !== e) throw new TypeError("Derived constructors may only return object or undefined"); return _assertThisInitialized(t); }
+function _assertThisInitialized(e) { if (void 0 === e) throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); return e; }
+function _inherits(t, e) { if ("function" != typeof e && null !== e) throw new TypeError("Super expression must either be null or a function"); t.prototype = Object.create(e && e.prototype, { constructor: { value: t, writable: !0, configurable: !0 } }), Object.defineProperty(t, "prototype", { writable: !1 }), e && _setPrototypeOf(t, e); }
+function _wrapNativeSuper(t) { var r = "function" == typeof Map ? new Map() : void 0; return _wrapNativeSuper = function _wrapNativeSuper(t) { if (null === t || !_isNativeFunction(t)) return t; if ("function" != typeof t) throw new TypeError("Super expression must either be null or a function"); if (void 0 !== r) { if (r.has(t)) return r.get(t); r.set(t, Wrapper); } function Wrapper() { return _construct(t, arguments, _getPrototypeOf(this).constructor); } return Wrapper.prototype = Object.create(t.prototype, { constructor: { value: Wrapper, enumerable: !1, writable: !0, configurable: !0 } }), _setPrototypeOf(Wrapper, t); }, _wrapNativeSuper(t); }
+function _construct(t, e, r) { if (_isNativeReflectConstruct()) return Reflect.construct.apply(null, arguments); var o = [null]; o.push.apply(o, e); var p = new (t.bind.apply(t, o))(); return r && _setPrototypeOf(p, r.prototype), p; }
+function _isNativeReflectConstruct() { try { var t = !Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function () {})); } catch (t) {} return (_isNativeReflectConstruct = function _isNativeReflectConstruct() { return !!t; })(); }
+function _isNativeFunction(t) { try { return -1 !== Function.toString.call(t).indexOf("[native code]"); } catch (n) { return "function" == typeof t; } }
+function _setPrototypeOf(t, e) { return _setPrototypeOf = Object.setPrototypeOf ? Object.setPrototypeOf.bind() : function (t, e) { return t.__proto__ = e, t; }, _setPrototypeOf(t, e); }
+function _getPrototypeOf(t) { return _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf.bind() : function (t) { return t.__proto__ || Object.getPrototypeOf(t); }, _getPrototypeOf(t); }
+function _classCallCheck(a, n) { if (!(a instanceof n)) throw new TypeError("Cannot call a class as a function"); }
+function _defineProperties(e, r) { for (var t = 0; t < r.length; t++) { var o = r[t]; o.enumerable = o.enumerable || !1, o.configurable = !0, "value" in o && (o.writable = !0), Object.defineProperty(e, _toPropertyKey(o.key), o); } }
+function _createClass(e, r, t) { return r && _defineProperties(e.prototype, r), t && _defineProperties(e, t), Object.defineProperty(e, "prototype", { writable: !1 }), e; }
+function _toPropertyKey(t) { var i = _toPrimitive(t, "string"); return "symbol" == _typeof(i) ? i : i + ""; }
+function _toPrimitive(t, e) { if ("object" != _typeof(t) || !t) return t; var r; if ("undefined" != typeof Symbol && void 0 !== (r = t[Symbol.toPrimitive])) { var i = r.call(t, e || "default"); if ("object" != _typeof(i)) return i; throw new TypeError("@@toPrimitive must return a primitive value."); } return ("string" === e ? String : Number)(t); }
 var fetch = require('node-fetch'),
-    qs = require('querystring'),
-    host = 'https://newsapi.org';
+  qs = require('querystring'),
+  host = 'https://newsapi.org';
 
-var CORSProxyUrl = ''; // To be set by user if declared in options
-
-var API_KEY; // To be set by clients
-
+// Per-instance configuration, kept out of the public object so that multiple clients
+// don't overwrite each other's API key or proxy
+var configs = new WeakMap();
 var NewsAPI = /*#__PURE__*/function () {
   function NewsAPI(apiKey) {
+    var _this = this;
     var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
-
     _classCallCheck(this, NewsAPI);
-
-    var corsProxyUrl = options.corsProxyUrl;
-    CORSProxyUrl = corsProxyUrl ? corsProxyUrl : ''; //assigns to global
-
     if (!apiKey) throw new Error('No API key specified');
-    API_KEY = apiKey;
+    configs.set(this, {
+      apiKey: apiKey,
+      corsProxyUrl: options.corsProxyUrl || ''
+    });
+    var request = function request() {
+      for (var _len = arguments.length, requestArgs = new Array(_len), _key = 0; _key < _len; _key++) {
+        requestArgs[_key] = arguments[_key];
+      }
+      return makeRequest.apply(void 0, [_this].concat(requestArgs));
+    };
+
+    // Bound so they keep working when destructured off the client, as they did before
+    this.sources = this.sources.bind(this);
+    this.articles = this.articles.bind(this);
     this.v2 = {
       topHeadlines: function topHeadlines() {
-        for (var _len = arguments.length, args = new Array(_len), _key = 0; _key < _len; _key++) {
-          args[_key] = arguments[_key];
-        }
-
-        var _splitArgsIntoOptions = splitArgsIntoOptionsAndCallback(args),
-            _splitArgsIntoOptions2 = _splitArgsIntoOptions.params,
-            params = _splitArgsIntoOptions2 === void 0 ? {
-          language: 'en'
-        } : _splitArgsIntoOptions2,
-            options = _splitArgsIntoOptions.options,
-            cb = _splitArgsIntoOptions.cb;
-
-        var url = createUrlFromEndpointAndOptions('/v2/top-headlines', params);
-        return getDataFromWeb(url, options, API_KEY, cb);
-      },
-      everything: function everything() {
         for (var _len2 = arguments.length, args = new Array(_len2), _key2 = 0; _key2 < _len2; _key2++) {
           args[_key2] = arguments[_key2];
         }
-
-        var _splitArgsIntoOptions3 = splitArgsIntoOptionsAndCallback(args),
-            params = _splitArgsIntoOptions3.params,
-            options = _splitArgsIntoOptions3.options,
-            cb = _splitArgsIntoOptions3.cb;
-
-        var url = createUrlFromEndpointAndOptions('/v2/everything', params);
-        return getDataFromWeb(url, options, API_KEY, cb);
+        return request('/v2/top-headlines', args, {
+          language: 'en'
+        });
       },
-      sources: function sources() {
+      everything: function everything() {
         for (var _len3 = arguments.length, args = new Array(_len3), _key3 = 0; _key3 < _len3; _key3++) {
           args[_key3] = arguments[_key3];
         }
-
-        var _splitArgsIntoOptions4 = splitArgsIntoOptionsAndCallback(args),
-            params = _splitArgsIntoOptions4.params,
-            options = _splitArgsIntoOptions4.options,
-            cb = _splitArgsIntoOptions4.cb;
-
-        var url = createUrlFromEndpointAndOptions('/v2/sources', params);
-        return getDataFromWeb(url, options, API_KEY, cb);
+        return request('/v2/everything', args);
+      },
+      sources: function sources() {
+        for (var _len4 = arguments.length, args = new Array(_len4), _key4 = 0; _key4 < _len4; _key4++) {
+          args[_key4] = arguments[_key4];
+        }
+        return request('/v2/sources', args);
       }
     };
   }
-
-  _createClass(NewsAPI, [{
+  return _createClass(NewsAPI, [{
     key: "sources",
     value: function sources() {
-      for (var _len4 = arguments.length, args = new Array(_len4), _key4 = 0; _key4 < _len4; _key4++) {
-        args[_key4] = arguments[_key4];
+      for (var _len5 = arguments.length, args = new Array(_len5), _key5 = 0; _key5 < _len5; _key5++) {
+        args[_key5] = arguments[_key5];
       }
-
-      var _splitArgsIntoOptions5 = splitArgsIntoOptionsAndCallback(args),
-          params = _splitArgsIntoOptions5.params,
-          options = _splitArgsIntoOptions5.options,
-          cb = _splitArgsIntoOptions5.cb;
-
-      var url = createUrlFromEndpointAndOptions('/v1/sources', params);
-      return getDataFromWeb(url, options, null, cb);
+      return makeRequest(this, '/v1/sources', args, undefined, false);
     }
   }, {
     key: "articles",
     value: function articles() {
-      for (var _len5 = arguments.length, args = new Array(_len5), _key5 = 0; _key5 < _len5; _key5++) {
-        args[_key5] = arguments[_key5];
+      for (var _len6 = arguments.length, args = new Array(_len6), _key6 = 0; _key6 < _len6; _key6++) {
+        args[_key6] = arguments[_key6];
       }
-
-      var _splitArgsIntoOptions6 = splitArgsIntoOptionsAndCallback(args),
-          params = _splitArgsIntoOptions6.params,
-          options = _splitArgsIntoOptions6.options,
-          cb = _splitArgsIntoOptions6.cb;
-
-      var url = createUrlFromEndpointAndOptions('/v1/articles', params);
-      return getDataFromWeb(url, options, API_KEY, cb);
+      return makeRequest(this, '/v1/articles', args);
     }
   }]);
-
-  return NewsAPI;
 }();
-
 var NewsAPIError = /*#__PURE__*/function (_Error) {
-  _inherits(NewsAPIError, _Error);
-
-  var _super = _createSuper(NewsAPIError);
-
-  function NewsAPIError(err) {
-    var _this;
-
+  function NewsAPIError(err, httpStatus) {
+    var _this2;
     _classCallCheck(this, NewsAPIError);
-
-    _this = _super.call(this);
-    _this.name = "NewsAPIError: ".concat(err.code);
-    _this.message = err.message;
-    return _this;
+    _this2 = _callSuper(this, NewsAPIError, [err.message]);
+    // The name format is kept for backwards compatibility. Use `code` to check for specific errors.
+    _this2.name = "NewsAPIError: ".concat(err.code);
+    _this2.code = err.code;
+    _this2.status = httpStatus;
+    return _this2;
   }
+  _inherits(NewsAPIError, _Error);
+  return _createClass(NewsAPIError);
+}(/*#__PURE__*/_wrapNativeSuper(Error));
+/**
+ * Sends a request to an endpoint using the configuration of the given client.
+ * @param {NewsAPI} client        The client making the request
+ * @param {String}  endpoint      The API endpoint, e.g. '/v2/everything'
+ * @param {Array}   args          The arguments passed to the public method
+ * @param {Object}  [defaultParams] Params to use if none were provided
+ * @param {Boolean} [useApiKey]   Whether to send the API key
+ * @return {Promise<Object>}
+ */
+function makeRequest(client, endpoint, args, defaultParams) {
+  var useApiKey = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : true;
+  var config = configs.get(client);
+  var _splitArgsIntoOptions = splitArgsIntoOptionsAndCallback(args),
+    _splitArgsIntoOptions2 = _splitArgsIntoOptions.params,
+    params = _splitArgsIntoOptions2 === void 0 ? defaultParams : _splitArgsIntoOptions2,
+    options = _splitArgsIntoOptions.options,
+    cb = _splitArgsIntoOptions.cb;
+  var url = createUrlFromEndpointAndOptions(config.corsProxyUrl, endpoint, params);
+  return getDataFromWeb(url, options, useApiKey ? config.apiKey : null, cb);
+}
 
-  return NewsAPIError;
-}( /*#__PURE__*/_wrapNativeSuper(Error));
 /**
  * Takes a variable-length array that represents arguments to a function and attempts to split it into
  * an 'options' object and a 'cb' callback function.
  * @param {Array}   args The arguments to the function
  * @return {Object}
  */
-
-
 function splitArgsIntoOptionsAndCallback(args) {
   var params;
   var options;
   var cb;
-
   if (args.length > 1) {
     var possibleCb = args[args.length - 1];
-
     if ('function' === typeof possibleCb) {
       cb = possibleCb;
       options = args.length === 3 ? args[1] : undefined;
     } else {
       options = args[1];
     }
-
     params = args[0];
   } else if ('object' === _typeof(args[0])) {
     params = args[0];
   } else if ('function' === typeof args[0]) {
     cb = args[0];
   }
-
   return {
     params: params,
     options: options,
     cb: cb
   };
 }
+
 /**
- * Creates a url string from an endpoint and an options object by appending the endpoint
- * to the global "host" const and appending the options as querystring parameters.
+ * Creates a url string from an endpoint and an options object by prepending the
+ * "host" const (and an optional CORS proxy) to the endpoint and appending the
+ * options as querystring parameters.
+ * @param {String} corsProxyUrl
  * @param {String} endpoint
  * @param {Object} [options]
  * @return {String}
  */
-
-
-function createUrlFromEndpointAndOptions(endpoint, options) {
+function createUrlFromEndpointAndOptions(corsProxyUrl, endpoint, options) {
   var query = qs.stringify(options);
-  var baseURL = "".concat(CORSProxyUrl).concat(host).concat(endpoint);
+  var baseURL = "".concat(corsProxyUrl).concat(host).concat(endpoint);
   return query ? "".concat(baseURL, "?").concat(query) : baseURL;
 }
+
+/**
+ * Parses a response body as JSON. Responses that aren't JSON (e.g. an HTML error page
+ * from a proxy) are turned into a NewsAPIError instead of a JSON parse error.
+ * @param  {Response} res
+ * @return {Promise<Object>}
+ */
+function parseResponseBody(res) {
+  return res.text().then(function (text) {
+    try {
+      return JSON.parse(text);
+    } catch (e) {
+      throw new NewsAPIError({
+        code: 'invalidResponse',
+        message: "Expected a JSON response from News API but received HTTP ".concat(res.status, " ").concat(res.statusText)
+      }, res.status);
+    }
+  });
+}
+
 /**
  * Takes a URL string and returns a Promise containing
- * a buffer with the data from the web.
- * @param  {String} url      A URL String
- * @param  {String} apiKey   (Optional) A key to be used for authentication
- * @return {Promise<Buffer>} A Promise containing a Buffer
+ * the parsed JSON response from the web.
+ * @param  {String}   url      A URL String
+ * @param  {Object}   [options]  Request options: noCache, showHeaders
+ * @param  {String}   [apiKey]   A key to be used for authentication
+ * @param  {Function} [cb]       Node-style callback
+ * @return {Promise<Object>}
  */
-
-
 function getDataFromWeb(url, options, apiKey, cb) {
-  var useCallback = 'function' === typeof cb; // CORS Headers by default
-
+  // Note: requests are sent without CORS headers. 'Access-Control-Allow-Origin' is a response header,
+  // and sending it with a request only causes browsers to make a preflight request.
   var reqOptions = {
-    'mode': 'cors',
-    headers: {
-      'Access-Control-Allow-Origin': '*'
-    }
+    headers: {}
   };
-
   if (apiKey) {
     reqOptions.headers['X-Api-Key'] = apiKey;
   }
-
   if (options && options.noCache === true) {
     reqOptions.headers['X-No-Cache'] = 'true';
   }
-
+  var useCallback = 'function' === typeof cb;
   return fetch(url, reqOptions).then(function (res) {
-    return Promise.all([res, res.json()]);
-  }).then(function (_ref) {
-    var _ref2 = _slicedToArray(_ref, 2),
-        res = _ref2[0],
-        body = _ref2[1];
-
-    if (body.status === 'error') throw new NewsAPIError(body); // 'showHeaders' option can be used for clients to debug response headers
-    // response will be in form of { headers, body }
-
-    if (options && options.showHeaders) {
-      if (useCallback) return cb(null, {
-        headers: res.headers,
-        body: body
-      });
-      return {
-        headers: res.headers,
-        body: body
-      };
-    }
-
-    if (useCallback) return cb(null, body);
-    return body;
+    return parseResponseBody(res).then(function (body) {
+      if (body.status === 'error') throw new NewsAPIError(body, res.status);
+      // 'showHeaders' option can be used for clients to debug response headers
+      // response will be in form of { headers, body }
+      if (options && options.showHeaders) {
+        if (useCallback) return cb(null, {
+          headers: res.headers,
+          body: body
+        });
+        return {
+          headers: res.headers,
+          body: body
+        };
+      }
+      if (useCallback) return cb(null, body);
+      return body;
+    });
   })["catch"](function (err) {
     if (useCallback) return cb(err);
     throw err;
   });
 }
-
+NewsAPI.NewsAPIError = NewsAPIError;
 module.exports = NewsAPI;

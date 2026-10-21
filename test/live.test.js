@@ -1,6 +1,9 @@
 'use strict';
 
-require('dotenv').config();
+// These tests make real requests to newsapi.org and need an API key.
+// Run them with `API_KEY=<your api key> npm run test:live`.
+
+require('dotenv').config({ quiet: true });
 
 let should = require('should'),
   NewsAPI = require('../dist/index');
@@ -8,7 +11,9 @@ let should = require('should'),
 if (!process.env.API_KEY) throw new Error('No API Key specified. Please create an environment variable named API_KEY');
 let newsapi = new NewsAPI(process.env.API_KEY);
 
-describe('NewsAPI', function () {
+describe('NewsAPI (live)', function () {
+  this.timeout(10000);
+
   describe('V1', function () {
     describe('Sources', function () {
       it('should return "ok" and a list of sources', function (done) {

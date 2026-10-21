@@ -4,7 +4,7 @@ A node interface for NewsAPI.
 
 [![npm](https://img.shields.io/npm/v/newsapi.svg)](https://www.npmjs.com/package/newsapi)
 [![npm](https://img.shields.io/npm/dt/newsapi.svg)](https://www.npmjs.com/package/newsapi)
-[![Build Status](https://travis-ci.org/bzarras/newsapi.svg?branch=master)](https://travis-ci.org/bzarras/newsapi)
+[![CI](https://github.com/bzarras/newsapi/actions/workflows/main.yml/badge.svg?branch=master)](https://github.com/bzarras/newsapi/actions/workflows/main.yml)
 
 Up-to-date news headlines and metadata in JSON from 70+ popular news sites. Powered by NewsAPI.org.
 
@@ -22,8 +22,14 @@ $ npm install newsapi --save
 ```
 
 ## Test
+The unit tests mock all requests to NewsAPI.org, so they don't need an API key:
 ```shell
-$ API_KEY=<your api key> npm test
+$ npm test
+```
+
+To also run tests against the live API:
+```shell
+$ API_KEY=<your api key> npm run test:live
 ```
 
 ## Example usage of v2 API
@@ -146,13 +152,24 @@ newsapi.v2.everything({
 });
 ```
 
-## UPDATE: CORS issue fix
-The following option has been added to requests by default and should resolve most CORS issues:
+## CORS and browser usage
+NewsAPI.org's free Developer plan only allows requests from browsers running on `localhost`, so requests from a
+deployed website will fail with a CORS error. This is a restriction of the API, not of this library, so the best
+fix is to call NewsAPI from your own server and keep your API key there.
+
+If you need to route requests through a proxy, you can use the `corsProxyUrl` option in the NewsAPI constructor.
+The proxy URL is prepended to each request URL:
 ```js
-const reqOptions = { 'mode': 'cors', headers: { 'Access-Control-Allow-Origin': '*' } };
+const newsapi = new NewsAPI('YOUR_API_KEY', { corsProxyUrl: 'https://your-proxy.example.com/' });
 ```
 
-If that does not work for you, you can use the `corsProxyUrl` option in the NewsAPI constructor to customize the request url:
+## Errors
+Errors returned by the API are rejected (or passed to your callback) as a `NewsAPIError`, with the
+[error code](https://newsapi.org/docs/errors) available as `err.code` and the HTTP status as `err.status`:
 ```js
-const newsapi = new NewsAPI('YOUR_API_KEY', { corsProxyUrl: 'https://cors-anywhere.herokuapp.com/' });
+newsapi.v2.everything({ q: 'bitcoin' }).catch(err => {
+  if (err instanceof NewsAPI.NewsAPIError && err.code === 'rateLimited') {
+    // ...
+  }
+});
 ```
