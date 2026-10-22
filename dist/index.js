@@ -1,17 +1,5 @@
-'use strict';
+"use strict";
 
-/**
- * This module provides access to the News API
- * https://newsapi.org/
- *
- * The API provides access to recent news headlines
- * from many popular news sources.
- *
- * The author of this code has no formal relationship with NewsAPI.org and does not
- * claim to have created any of the facilities provided by NewsAPI.org.
- */
-
-//GLOBALS
 require("core-js/modules/es.symbol.js");
 require("core-js/modules/es.symbol.description.js");
 require("core-js/modules/es.symbol.iterator.js");
@@ -52,13 +40,27 @@ function _defineProperties(e, r) { for (var t = 0; t < r.length; t++) { var o = 
 function _createClass(e, r, t) { return r && _defineProperties(e.prototype, r), t && _defineProperties(e, t), Object.defineProperty(e, "prototype", { writable: !1 }), e; }
 function _toPropertyKey(t) { var i = _toPrimitive(t, "string"); return "symbol" == _typeof(i) ? i : i + ""; }
 function _toPrimitive(t, e) { if ("object" != _typeof(t) || !t) return t; var r; if ("undefined" != typeof Symbol && void 0 !== (r = t[Symbol.toPrimitive])) { var i = r.call(t, e || "default"); if ("object" != _typeof(i)) return i; throw new TypeError("@@toPrimitive must return a primitive value."); } return ("string" === e ? String : Number)(t); }
-var fetch = require('node-fetch'),
-  qs = require('querystring'),
-  host = 'https://newsapi.org';
+/**
+ * This module provides access to the News API
+ * https://newsapi.org/
+ *
+ * The API provides access to recent news headlines
+ * from many popular news sources.
+ *
+ * The author of this code has no formal relationship with NewsAPI.org and does not
+ * claim to have created any of the facilities provided by NewsAPI.org.
+ */
+//GLOBALS
+var fetch = require('node-fetch');
+var qs = require('querystring');
+var host = 'https://newsapi.org';
 
 // Per-instance configuration, kept out of the public object so that multiple clients
 // don't overwrite each other's API key or proxy
 var configs = new WeakMap();
+
+// The public signatures live in the `NewsAPI` namespace at the bottom of this file. The implementations below
+// take their arguments untyped and sort them out in splitArgsIntoOptionsAndCallback.
 var NewsAPI = /*#__PURE__*/function () {
   function NewsAPI(apiKey) {
     var _this = this;
@@ -102,6 +104,8 @@ var NewsAPI = /*#__PURE__*/function () {
       }
     };
   }
+
+  /** @deprecated Part of the legacy v1 API. Use `v2.sources` instead. */
   return _createClass(NewsAPI, [{
     key: "sources",
     value: function sources() {
@@ -110,6 +114,8 @@ var NewsAPI = /*#__PURE__*/function () {
       }
       return makeRequest(this, '/v1/sources', args, undefined, false);
     }
+
+    /** @deprecated Part of the legacy v1 API. */
   }, {
     key: "articles",
     value: function articles() {
@@ -265,5 +271,8 @@ function getDataFromWeb(url, options, apiKey, cb) {
     throw err;
   });
 }
+
+// Type-only declarations: this namespace merges with the class above and adds nothing at runtime.
+
 NewsAPI.NewsAPIError = NewsAPIError;
 module.exports = NewsAPI;
