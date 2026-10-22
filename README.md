@@ -22,7 +22,7 @@ $ npm install newsapi --save
 ```
 
 ## Test
-The unit tests mock all requests to NewsAPI.org, so they don't need an API key:
+The unit tests mock all requests to NewsAPI.org, so they don't need an API key. `npm test` also builds `dist/` and type checks the types in `test/types.check.ts`:
 ```shell
 $ npm test
 ```
@@ -92,6 +92,23 @@ newsapi.v2.sources({
   */
 });
 ```
+
+## TypeScript
+Type definitions are included, so there is nothing extra to install. Request params, responses, and `NewsAPIError` are typed:
+```ts
+import NewsAPI = require('newsapi');
+// or `import NewsAPI from 'newsapi';` if `esModuleInterop` is enabled
+
+const newsapi = new NewsAPI('YOUR_API_KEY');
+
+const params: NewsAPI.EverythingParams = { q: 'bitcoin', sortBy: 'publishedAt' };
+const { articles } = await newsapi.v2.everything(params); // articles: NewsAPI.Article[]
+
+// With showHeaders: true the promise resolves with { headers, body }
+const { headers, body } = await newsapi.v2.topHeadlines({ country: 'us' }, { showHeaders: true });
+```
+The param types only list the parameters documented by News API, so a typo is a compile error. If News API adds a
+parameter before this library does, cast it: `{ q: 'a', newParam: 'b' } as NewsAPI.EverythingParams`.
 
 ## Example usage of v1 legacy API
 ```js
