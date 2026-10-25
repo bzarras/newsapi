@@ -16,7 +16,7 @@ npm accepts releases from GitHub Actions through a stage-only [trusted publisher
 The major version of this library matches the version of the News API it wraps, so changes must not break current consumers.
 
 ## v2.5.0
-Date: 2026-10-21  
+Date: 2026-10-25  
 Type: Minor  
 This release makes the following changes, updates, and bug fixes:
 1. Add TypeScript type definitions (`dist/index.d.ts`), generated from the now TypeScript source in `src/index.ts`. The compiled JavaScript output is unchanged.
