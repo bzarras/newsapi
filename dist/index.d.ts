@@ -26,6 +26,8 @@ declare class NewsAPI {
     sources<R = void>(params: NewsAPI.Params | undefined, options: NewsAPI.RequestOptions & {
         showHeaders: true;
     }, cb: NewsAPI.Callback<NewsAPI.WithHeaders<NewsAPI.LegacyResponse>, R>): Promise<R>;
+    sources(params: NewsAPI.Params | undefined, options: NewsAPI.RequestOptions): Promise<NewsAPI.LegacyResponse | NewsAPI.WithHeaders<NewsAPI.LegacyResponse>>;
+    sources<R = void>(params: NewsAPI.Params | undefined, options: NewsAPI.RequestOptions, cb: NewsAPI.Callback<NewsAPI.LegacyResponse | NewsAPI.WithHeaders<NewsAPI.LegacyResponse>, R>): Promise<R>;
     /** @deprecated Part of the legacy v1 API. */
     articles(params?: NewsAPI.Params, options?: NewsAPI.RequestOptions & {
         showHeaders?: false;
@@ -41,6 +43,8 @@ declare class NewsAPI {
     articles<R = void>(params: NewsAPI.Params | undefined, options: NewsAPI.RequestOptions & {
         showHeaders: true;
     }, cb: NewsAPI.Callback<NewsAPI.WithHeaders<NewsAPI.LegacyResponse>, R>): Promise<R>;
+    articles(params: NewsAPI.Params | undefined, options: NewsAPI.RequestOptions): Promise<NewsAPI.LegacyResponse | NewsAPI.WithHeaders<NewsAPI.LegacyResponse>>;
+    articles<R = void>(params: NewsAPI.Params | undefined, options: NewsAPI.RequestOptions, cb: NewsAPI.Callback<NewsAPI.LegacyResponse | NewsAPI.WithHeaders<NewsAPI.LegacyResponse>, R>): Promise<R>;
 }
 declare class NewsAPIError extends Error {
     code: string;
@@ -185,6 +189,8 @@ declare namespace NewsAPI {
         <R = void>(params: P | undefined, options: RequestOptions & {
             showHeaders: true;
         }, cb: Callback<WithHeaders<T>, R>): Promise<R>;
+        (params: P | undefined, options: RequestOptions): Promise<T | WithHeaders<T>>;
+        <R = void>(params: P | undefined, options: RequestOptions, cb: Callback<T | WithHeaders<T>, R>): Promise<R>;
     }
     interface V2 {
         topHeadlines: Method<TopHeadlinesParams, ArticlesResponse>;

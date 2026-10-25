@@ -59,6 +59,8 @@ class NewsAPI {
   sources<R = void>(params: NewsAPI.Params | undefined, cb: NewsAPI.Callback<NewsAPI.LegacyResponse, R>): Promise<R>;
   sources<R = void>(params: NewsAPI.Params | undefined, options: NewsAPI.RequestOptions & { showHeaders?: false }, cb: NewsAPI.Callback<NewsAPI.LegacyResponse, R>): Promise<R>;
   sources<R = void>(params: NewsAPI.Params | undefined, options: NewsAPI.RequestOptions & { showHeaders: true }, cb: NewsAPI.Callback<NewsAPI.WithHeaders<NewsAPI.LegacyResponse>, R>): Promise<R>;
+  sources(params: NewsAPI.Params | undefined, options: NewsAPI.RequestOptions): Promise<NewsAPI.LegacyResponse | NewsAPI.WithHeaders<NewsAPI.LegacyResponse>>;
+  sources<R = void>(params: NewsAPI.Params | undefined, options: NewsAPI.RequestOptions, cb: NewsAPI.Callback<NewsAPI.LegacyResponse | NewsAPI.WithHeaders<NewsAPI.LegacyResponse>, R>): Promise<R>;
   sources(...args: any[]): Promise<any> {
     return makeRequest(this, '/v1/sources', args, undefined, false);
   }
@@ -70,6 +72,8 @@ class NewsAPI {
   articles<R = void>(params: NewsAPI.Params | undefined, cb: NewsAPI.Callback<NewsAPI.LegacyResponse, R>): Promise<R>;
   articles<R = void>(params: NewsAPI.Params | undefined, options: NewsAPI.RequestOptions & { showHeaders?: false }, cb: NewsAPI.Callback<NewsAPI.LegacyResponse, R>): Promise<R>;
   articles<R = void>(params: NewsAPI.Params | undefined, options: NewsAPI.RequestOptions & { showHeaders: true }, cb: NewsAPI.Callback<NewsAPI.WithHeaders<NewsAPI.LegacyResponse>, R>): Promise<R>;
+  articles(params: NewsAPI.Params | undefined, options: NewsAPI.RequestOptions): Promise<NewsAPI.LegacyResponse | NewsAPI.WithHeaders<NewsAPI.LegacyResponse>>;
+  articles<R = void>(params: NewsAPI.Params | undefined, options: NewsAPI.RequestOptions, cb: NewsAPI.Callback<NewsAPI.LegacyResponse | NewsAPI.WithHeaders<NewsAPI.LegacyResponse>, R>): Promise<R>;
   articles(...args: any[]): Promise<any> {
     return makeRequest(this, '/v1/articles', args);
   }
@@ -340,6 +344,9 @@ declare namespace NewsAPI {
     <R = void>(params: P | undefined, cb: Callback<T, R>): Promise<R>;
     <R = void>(params: P | undefined, options: RequestOptions & { showHeaders?: false }, cb: Callback<T, R>): Promise<R>;
     <R = void>(params: P | undefined, options: RequestOptions & { showHeaders: true }, cb: Callback<WithHeaders<T>, R>): Promise<R>;
+    // Fallbacks for options whose showHeaders isn't known at compile time, e.g. a RequestOptions variable
+    (params: P | undefined, options: RequestOptions): Promise<T | WithHeaders<T>>;
+    <R = void>(params: P | undefined, options: RequestOptions, cb: Callback<T | WithHeaders<T>, R>): Promise<R>;
   }
 
   interface V2 {

@@ -23,6 +23,20 @@ newsapi.v2.everything({ q: 'a' }, { showHeaders: true }).then(res => {
 });
 newsapi.v2.everything({ q: 'a' }, { noCache: true }).then(res => expectType<NewsAPI.Article[]>(res.articles));
 
+// Options whose showHeaders is only known at runtime resolve with either shape
+declare const debug: boolean;
+const requestOptions: NewsAPI.RequestOptions = { noCache: true, showHeaders: debug };
+newsapi.v2.everything({ q: 'a' }, requestOptions).then(res => {
+  expectType<NewsAPI.ArticlesResponse | NewsAPI.WithHeaders<NewsAPI.ArticlesResponse>>(res);
+});
+newsapi.v2.topHeadlines({ country: 'us' }, { showHeaders: debug }, (err, res) => {
+  expectType<NewsAPI.ArticlesResponse | NewsAPI.WithHeaders<NewsAPI.ArticlesResponse> | undefined>(res);
+});
+newsapi.articles({ source: 'bbc-news' }, requestOptions).then(res => {
+  expectType<NewsAPI.LegacyResponse | NewsAPI.WithHeaders<NewsAPI.LegacyResponse>>(res);
+});
+newsapi.sources({}, requestOptions, (err, res) => {});
+
 // Callbacks, with the promise resolving with the callback's return value
 newsapi.v2.everything({ q: 'a' }, (err, res) => {
   expectType<Error | null>(err);
